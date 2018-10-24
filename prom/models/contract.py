@@ -14,7 +14,14 @@ class contract(models.Model):
     _name = 'prom.contract'
     _description = u'Сontract of project/Контракт проекта'
     # _inherit = ['prom.currency']
-
+    new_field_ids = fields.One2many(
+        string="Field name",
+        comodel_name="res.partner",
+        inverse_name="inverse_name_id",
+        domain="[('field', '=', other)]",
+        context={"key": "value"},
+        help="Explain your field.",
+    )
     currency_id = fields.Many2one(
         comodel_name="res.currency",
     )
