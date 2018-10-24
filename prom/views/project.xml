@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_view_form" model="ir.ui.view">
+        <field name="name">prom.project.form</field>
+        <field name="model">prom.project</field>
+        <field name="arch" type="xml">
+            <form string="project">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="manager_user_id"/>
+                        <field name="contract_ids"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="project_view_tree" model="ir.ui.view">
+        <field name="name">prom.project.tree</field>
+        <field name="model">prom.project</field>
+        <field name="arch" type="xml">
+            <tree string="project">
+                <field name="name"/>
+                <field name="manager_user_id"/>
+                <field name="contract_ids"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="project_action_form" model="ir.actions.act_window">
+        <field name="name">project</field>
+        <field name="res_model">prom.project</field>
+        <field name="view_mode">tree,form</field>
+    </record> 
+    
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="contract_view_form" model="ir.ui.view">
+        <field name="name">prom.contract.form</field>
+        <field name="model">prom.contract</field>
+        <field name="arch" type="xml">
+            <form string="contract">
+                <sheet>
+                    <group>
+                        <field name="project_id"/>
+                        <field name="kind"/>
+                        <field name="number"/>
+                        <field name="currency"/>
+                        <field name="date_of_signing"/>
+                        <field name="currency_of_signing"/>
+                        <field name="settlement"/>
+                        <field name="product_ids"/>
+
+                        <field name="postavka_start"/>
+                        <field name="postavka_production_time"/>
+                        <field name="postavka_delivery_time"/>
+                        <field name="postavka_pnr_time"/>
+                        <field name="postavka_guarantee_period"/>
+                        <field name="settlements_ids"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="contract_view_tree" model="ir.ui.view">
+        <field name="name">prom.contract.tree</field>
+        <field name="model">prom.contract</field>
+        <field name="arch" type="xml">
+            <tree string="contract">
+                <field name="project_id"/>
+                <field name="kind"/>
+                <field name="number"/>
+                <field name="currency"/>
+                <field name="date_of_signing"/>
+                <field name="currency_of_signing"/>
+                <field name="settlement"/>
+                <field name="product_ids"/>
+
+                <field name="postavka_start"/>
+                <field name="postavka_production_time"/>
+                <field name="postavka_delivery_time"/>
+                <field name="postavka_pnr_time"/>
+                <field name="postavka_guarantee_period"/>
+                <field name="settlements_ids"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="contract_action_form" model="ir.actions.act_window">
+        <field name="name">contract</field>
+        <field name="res_model">prom.contract</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

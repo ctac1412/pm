@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_view_form" model="ir.ui.view">
+        <field name="name">prom.product.form</field>
+        <field name="model">prom.product</field>
+        <field name="arch" type="xml">
+            <form string="product">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="unit"/>
+                        <field name="count"/>
+                        <field name="currency"/>
+                        <field name="price"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="product_view_tree" model="ir.ui.view">
+        <field name="name">prom.product.tree</field>
+        <field name="model">prom.product</field>
+        <field name="arch" type="xml">
+            <tree string="product">
+                <field name="name"/>
+                <field name="unit"/>
+                <field name="count"/>
+                <field name="currency"/>
+                <field name="price"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="product_action_form" model="ir.actions.act_window">
+        <field name="name">product</field>
+        <field name="res_model">prom.product</field>
+        <field name="view_mode">tree,form</field>
+    </record> 
+</odoo>
