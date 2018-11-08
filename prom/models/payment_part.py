@@ -7,15 +7,17 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
+import logging
 
-class currency(models.AbstractModel):
-    _name = 'prom.currency'
-    _description = u'Currency/Валюты'
-    currency = fields.Selection(
-        string="currency",
-        selection=[
-            ('rub', 'RUB'),
-            ('usd', 'USD'),
-            ('eur', 'EUR'),
-        ], default='rub'
+class payment_part(models.Model):
+    _name = 'prom.payment_part'
+    _description = u'Платежная часть / payment_part'
+    
+    passport_id = fields.Many2one(
+        comodel_name="prom.passport"
     )
+    contract_part_pr  = fields.Float()
+    payment_delay = fields.Integer()
+    terms_of_payment = fields.Char()
+    payment_date  = fields.Date()
+    

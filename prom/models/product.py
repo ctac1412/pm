@@ -8,13 +8,14 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
 import logging
-_logger = logging.getLogger("project")
 
 class product(models.Model):
     _name = 'prom.product'
     _description = u'Product and services/ Товары и услуги'
-    _inherit = ['prom.currency']
     name = fields.Char()
     unit = fields.Char()
     count = fields.Integer()
-    price = fields.Integer()
+    price = fields.Float()
+    currency_id  = fields.Many2one(
+        comodel_name="res.currency"
+    )

@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from . import currency
 from . import product
 from . import settlements
-from . import contract
 from . import project
+from . import obligation
+from . import finn_transaction
+
+from . import payment_part
+from . import passport
+from . import currency_rate

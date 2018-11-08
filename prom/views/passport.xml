@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="passport_view_form" model="ir.ui.view">
+        <field name="name">prom.passport.form</field>
+        <field name="model">prom.passport</field>
+        <field name="arch" type="xml">
+            <form string="passport">
+                <sheet>
+                    <group>
+                        <field name="project_id"/>
+                        <field name="specification_number"/>
+                        <field name="state"/>
+                        <field name="product_ids"/>
+                        <field name="obligation_ids"/>
+                    </group>
+                    <group string='Contract'>
+                        <field name="contract_number"/>
+                        <field name="date_of_signing"/>
+                        <field name="currency_id"/>
+                        <field name="calculate_currency_id"/>
+                        <field name="currency_of_signing"/>
+                    </group>
+                    <group >
+                        <group string="С НДС">
+                            <field name="price_currency_id_date_sign"/>
+                            <field name="price_rub_date_sign"/>
+                            <field name="price_rub_actual"/>
+                        </group>
+                        <group string="без НДС">
+                            <field name="price_currency_id_date_sign_wonds"/>
+                            <field name="price_rub_date_sign_wonds"/>
+                            <field name="price_rub_actual_wonds"/>
+                        </group>
+                    </group>
+                   <group >
+                             <field name="pay_kind"/>
+                        <field name="finn_transaction_ids"/>
+                 </group>      
+
+
+                    <group string='Поставки по договору'>
+                        <field name="production_days"/>
+                        <field name="date_of_pr_production"/>
+                        <field name="delivery_days"/>
+                        <field name="date_of_delivery"/>
+                        <field name="start_up_period"/>
+                        <field name="date_of_start"/>
+                        <field name="date_of_accept"/>
+                        <field name="warranty_period"/>
+                        <field name="date_of_warranty_end"/>
+                        <field name="date_of_pr_start"/>
+                    </group>
+                    <group string='Расчеты по договору'>
+                    </group>
+                    <group string='Аванс'>
+                        <field name="avance_contract_part_pr"/>
+                        <field name="avance_payment_delay"/>
+                        <field name="avance_terms_of_payment"/>
+                        <field name="avance_payment_date"/>
+                        <field name="avance_summ_cur_contract"/>
+                        <field name="avance_summ_cur_rub_date_podpis"/>
+                        <field name="avance_contract_part_cur"/>
+                        <field name="avance_summmode"/>
+                    </group>
+                    <group string='Уведомление'>
+                        <field name="message_contract_part_pr"/>
+                        <field name="message_payment_delay"/>
+                        <field name="message_terms_of_payment"/>
+                        <field name="message_payment_date"/>
+                        <field name="message_summ_cur_contract"/>
+                        <field name="message_summ_cur_rub_date_podpis"/>
+                        <field name="message_contract_part_cur"/>
+                        <field name="message_summmode"/>
+                    </group>
+                    <group string='Конец ПНР'>
+                        <field name="endpnr_contract_part_pr"/>
+                        <field name="endpnr_payment_delay"/>
+                        <field name="endpnr_terms_of_payment"/>
+                        <field name="endpnr_payment_date"/>
+                        <field name="endpnr_summ_cur_contract"/>
+                        <field name="endpnr_summ_cur_rub_date_podpis"/>
+                        <field name="endpnr_contract_part_cur"/>
+                        <field name="endpnr_summmode"/>
+                    </group>
+                    <group string='Фактический'>
+
+                        <field name="fact_contract_part_pr"/>
+                        <field name="fact_payment_delay"/>
+                        <field name="fact_terms_of_payment"/>
+                        <field name="fact_payment_date"/>
+                        <field name="fact_summ_cur_contract"/>
+                        <field name="fact_summ_cur_rub_date_podpis"/>
+                        <field name="fact_contract_part_cur"/>
+                        <field name="fact_summmode"/>
+                    </group>
+
+
+
+
+                    <group string='Обеспечение по договору'>
+                        <field name="contract_guarantee_type"/>
+                        <field name="refund"/>
+                        <field name="guarantee"/>
+                        <field name="cost_for_us"/>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="passport_view_tree" model="ir.ui.view">
+        <field name="name">prom.passport.tree</field>
+        <field name="model">prom.passport</field>
+        <field name="arch" type="xml">
+            <tree string="passport">
+
+                <field name="project_id"/>
+                <field name="specification_number"/>
+                <field name="state"/>
+                <field name="product_ids"/>
+
+
+                <field name="contract_number"/>
+                <field name="date_of_signing"/>
+                <field name="currency_id"/>
+                <field name="calculate_currency_id"/>
+                <field name="currency_of_signing"/>
+                <field name="price_currency_id_date_sign"/>
+                <field name="price_currency_id_actual"/>
+                <field name="price_rub_date_sign"/>
+                <field name="price_rub_actual"/>
+                <field name="pay_kind"/>
+
+                <field name="production_days"/>
+                <field name="date_of_pr_production"/>
+                <field name="delivery_days"/>
+                <field name="date_of_delivery"/>
+                <field name="start_up_period"/>
+                <field name="date_of_start"/>
+                <field name="date_of_accept"/>
+                <field name="warranty_period"/>
+                <field name="date_of_warranty_end"/>
+                <field name="date_of_pr_start"/>
+
+
+
+
+                <field name="contract_guarantee_type"/>
+                <field name="refund"/>
+                <field name="guarantee"/>
+                <field name="cost_for_us"/>
+
+
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="passport_action_form" model="ir.actions.act_window">
+        <field name="name">passport</field>
+        <field name="res_model">prom.passport</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

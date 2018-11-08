@@ -14,8 +14,8 @@ _logger = logging.getLogger("settlements")
 class settlements(models.Model):
     _name = 'prom.settlements'
     _description = u'Settlements of contract/ Расчеты по договору'
-    contract_id = fields.Many2one(
-        comodel_name="prom.contract"
+    passport_id = fields.Many2one(
+        comodel_name="prom.passport"
     )
     percentage = fields.Char()
     amount_contract_currency = fields.Char()

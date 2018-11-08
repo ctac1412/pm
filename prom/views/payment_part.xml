@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_part_view_form" model="ir.ui.view">
+        <field name="name">prom.payment_part.form</field>
+        <field name="model">prom.payment_part</field>
+        <field name="arch" type="xml">
+            <form string="payment_part">
+                <sheet>
+                    <group>
+                        <field name="passport_id"/>
+                        <field name="contract_part_pr"/>
+                        <field name="payment_delay"/>
+                        <field name="terms_of_payment"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="payment_part_view_tree" model="ir.ui.view">
+        <field name="name">prom.payment_part.tree</field>
+        <field name="model">prom.payment_part</field>
+        <field name="arch" type="xml">
+            <tree string="project">
+                <field name="passport_id"/>
+                <field name="contract_part_pr"/>
+                <field name="payment_delay"/>
+                <field name="terms_of_payment"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="payment_part_action_form" model="ir.actions.act_window">
+        <field name="name">payment_part</field>
+        <field name="res_model">prom.payment_part</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

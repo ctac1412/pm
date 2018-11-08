@@ -2,8 +2,8 @@
 <odoo>
     <menuitem id="menu_prom" name="prom" sequence="1"/>
     <menuitem id="menu_project" name="project" parent="menu_prom" action="project_action_form" sequence="1"/>
-    <menuitem id="menu_contract" name="contract" parent="menu_prom" action="contract_action_form" sequence="2"/>
-    <menuitem id="menu_product" name="product" parent="menu_prom" action="product_action_form" sequence="3"/>
-    <menuitem id="menu_settlements" name="settlements" parent="menu_prom" action="settlements_action_form" sequence="3"/>
-    
+    <menuitem id="menu_passport" name="passport" parent="menu_prom" action="passport_action_form"/>
+    <menuitem id="menu_product" name="product" parent="menu_prom" action="product_action_form"/>
+    <menuitem id="menu_settlements" name="settlements" parent="menu_prom" action="settlements_action_form"/>
+    <menuitem id="menu_part_action" name="part_action" parent="menu_prom" action="payment_part_action_form"/>
 </odoo>

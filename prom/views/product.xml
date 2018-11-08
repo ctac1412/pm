@@ -10,7 +10,7 @@
                         <field name="name"/>
                         <field name="unit"/>
                         <field name="count"/>
-                        <field name="currency"/>
+                        <field name="currency_id"/>
                         <field name="price"/>
                     </group>
                 </sheet>
@@ -25,7 +25,7 @@
                 <field name="name"/>
                 <field name="unit"/>
                 <field name="count"/>
-                <field name="currency"/>
+                <field name="currency_id"/>
                 <field name="price"/>
             </tree>
         </field>

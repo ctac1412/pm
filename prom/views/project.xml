@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+
+ <record model="ir.ui.view" id="base.view_company_form_add_nds">
+            <field name="name">res.company.form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form" />
+            <field name="arch" type="xml">
+             
+                <xpath expr="//field[@id='company_currency']" position="after">
+                    <field  name="nds"/>
+                </xpath>    
+
+            </field>                               
+        </record>
+
     <record id="project_view_form" model="ir.ui.view">
         <field name="name">prom.project.form</field>
         <field name="model">prom.project</field>
@@ -9,7 +24,15 @@
                     <group>
                         <field name="name"/>
                         <field name="manager_user_id"/>
-                    
+
+                        <field name="customer_company_id"/>
+                        <field name="contractor_company_id"/>
+                        <field name="kind_podryad"/>
+
+                        <field name="parent_project_id"/>
+                        <field name="state"/>
+                        <field name="passport_ids"/>
+
                     </group>
                 </sheet>
             </form>
@@ -22,15 +45,24 @@
             <tree string="project">
                 <field name="name"/>
                 <field name="manager_user_id"/>
-          
+
+                <field name="customer_company_id"/>
+                <field name="contractor_company_id"/>
+                <field name="kind_podryad"/>
+
+                <field name="parent_project_id"/>
+                <field name="state"/>
+                <field name="passport_ids"/>
+
             </tree>
         </field>
     </record>
-    
+
+
     <record id="project_action_form" model="ir.actions.act_window">
         <field name="name">project</field>
         <field name="res_model">prom.project</field>
         <field name="view_mode">tree,form</field>
-    </record> 
-    
+    </record>
+
 </odoo>
