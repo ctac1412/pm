@@ -6,13 +6,24 @@
         <field name="arch" type="xml">
             <form string="product">
                 <sheet>
+                <h1>Товар или услуга</h1>
                     <group>
-                        <field name="name"/>
-                        <field name="unit"/>
+                    
+                        <field name="product_item_id"/>
+                        <field name="passport_id"/>
+                        
+
+                    </group>
+                <group >
+                    <group>
                         <field name="count"/>
-                        <field name="currency_id"/>
                         <field name="price"/>
                     </group>
+                    <group>
+                        <!-- <field name="currency_id"/> -->
+                        <field name="unit"/>
+                    </group>
+                </group>
                 </sheet>
             </form>
         </field>
@@ -22,15 +33,14 @@
         <field name="model">prom.product</field>
         <field name="arch" type="xml">
             <tree string="product">
-                <field name="name"/>
-                <field name="unit"/>
+            <field name="product_item_id"/>
+                        <field name="passport_id"/>
                 <field name="count"/>
-                <field name="currency_id"/>
+                <!-- <field name="currency_id"/> -->
                 <field name="price"/>
             </tree>
         </field>
     </record>
-    
     <record id="product_action_form" model="ir.actions.act_window">
         <field name="name">product</field>
         <field name="res_model">prom.product</field>

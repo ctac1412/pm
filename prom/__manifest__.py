@@ -15,6 +15,7 @@
         "data/cron.xml",
         'views/product.xml',
         'views/obligation.xml',
+        'views/finn_transaction.xml',
         
         'views/payment_part.xml',
         'views/passport.xml',

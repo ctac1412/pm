@@ -9,10 +9,10 @@ from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
 import logging
 
-class obligation_t(models.AbstractModel):
-    _name = 'prom.obligation_t'
+class obligation_t(models.Model):
+    _name = 'prom.obligation'
     name = fields.Char()
-    currency_id  = fields.Many2one()
+    # currency_id  = fields.Many2one(comodel_name="res.currency")
     price = fields.Float()
     persent = fields.Integer()
     unit = fields.Char()
@@ -27,19 +27,19 @@ class obligation_t(models.AbstractModel):
         ], default='price'
     )
 
-class obligation(models.Model):
-    _name = 'prom.obligation'
-    _inherit = ['prom.obligation_t']
-    passport_id = fields.Many2one(
-        comodel_name="prom.obligation_type"
-    )
+# class obligation(models.Model):
+#     _name = 'prom.obligation'
+#     _inherit = ['prom.obligation_t']
+#     passport_id = fields.Many2one(
+#         comodel_name="prom.obligation_type"
+#     )
 
-class finn_obligation(models.Model):
-    _name = 'prom.finn_obligation'
-    _inherit = ['prom.obligation_t']
-    finn_transaction_id = fields.Many2one(
-        comodel_name="prom.finn_transaction"
-    )
+# class finn_obligation(models.Model):
+#     _name = 'prom.finn_obligation'
+#     _inherit = ['prom.obligation_t']
+#     finn_transaction_id = fields.Many2one(
+#         comodel_name="prom.finn_transaction"
+#     )
 
 class obligation_type(models.Model):
     _name = 'prom.obligation_type'

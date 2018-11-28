@@ -5,20 +5,52 @@
         <field name="model">prom.passport</field>
         <field name="arch" type="xml">
             <form string="passport">
+                <header>
+
+        <button type="object" class="oe_stat_button" name="set_state_in_work" string="set_state_in_work" 
+        attrs="{'invisible':[('state','not in',['content_negotiation','kp_cancel'])]}" />
+        <button type="object" class="oe_stat_button" name="set_state_kp_cancel" string="set_state_kp_cancel"
+        attrs="{'invisible':[('state','not in',['in_work'])]}"/>
+        <button type="object" class="oe_stat_button" name="set_state_content_negotiation" string="set_state_content_negotiation"
+        attrs="{'invisible':[('state','not in',['in_work'])]}"/>
+        <!-- <button type="object" class="oe_stat_button" name="set_state_content_agreed" string="set_state_content_agreed"/> -->
+        <!-- <button type="object" class="oe_stat_button" name="set_state_contract_sign" string="set_state_contract_sign"/> -->
+        <button type="object" class="oe_stat_button" name="set_state_contract_cancel" string="set_state_contract_cancel"
+        attrs="{'invisible':[('state','not in',['contract_sign'])]}"/>
+        <button type="object" class="oe_stat_button" name="set_state_contract_done" string="set_state_contract_done"
+        attrs="{'invisible':[('state','not in',['contract_sign'])]}"/>
+        <button type="object" class="oe_stat_button" name="set_state_dop_contract" string="set_state_dop_contract"
+        attrs="{'invisible':[('state','not in',['contract_sign'])]}"/>
+
+
+                <field name="state" widget="statusbar" statusbar_visible="" />
+                </header>
                 <sheet>
-                    <group>
+                    <group string="">
                         <field name="project_id"/>
+                        <field name="is_actual"/>
+                        <field name="kp_cancel_reason" attrs="{'invisible':[('state','not in',['kp_cancel'])]}"/>
+                        <field name="contract_cancel_reason" attrs="{'invisible':[('state','not in',['contract_cancel'])]}"/>
+                        
                         <field name="specification_number"/>
-                        <field name="state"/>
-                        <field name="product_ids"/>
-                        <field name="obligation_ids"/>
+                        <field name="attachment_ids" widget="many2many_binary" string="Attach a file"/>
+
+
                     </group>
-                    <group string='Contract'>
+                </sheet>
+                <sheet>
+                    <group string='Информация о договоре.'>
                         <field name="contract_number"/>
-                        <field name="date_of_signing"/>
-                        <field name="currency_id"/>
-                        <field name="calculate_currency_id"/>
-                        <field name="currency_of_signing"/>
+                    </group>
+                    <group >
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="date_of_signing" attrs="{'invisible':[('state','not in',['content_agreed'])]}"/>
+                        </group>
+                        <group>
+                            <field name="calculate_currency_id"/>
+                            <field name="currency_of_signing"/>
+                        </group>
                     </group>
                     <group >
                         <group string="С НДС">
@@ -32,106 +64,172 @@
                             <field name="price_rub_actual_wonds"/>
                         </group>
                     </group>
-                   <group >
-                             <field name="pay_kind"/>
-                        <field name="finn_transaction_ids"/>
-                 </group>      
-
-
-                    <group string='Поставки по договору'>
-                        <field name="production_days"/>
-                        <field name="date_of_pr_production"/>
-                        <field name="delivery_days"/>
-                        <field name="date_of_delivery"/>
-                        <field name="start_up_period"/>
-                        <field name="date_of_start"/>
-                        <field name="date_of_accept"/>
-                        <field name="warranty_period"/>
-                        <field name="date_of_warranty_end"/>
-                        <field name="date_of_pr_start"/>
+                    <group >
+                        <field name="pay_kind"/>
+                        <field name="finn_transaction_ids" context="{'default_passport_id':id}"/>
                     </group>
+                </sheet>
+
+                <sheet>
+                    <group string='Товары и услуги'>
+                        <field name="product_ids" nolabel="1"/>
+
+                    </group>
+                    <group string='Обязательства'>
+                        <field name="obligation_ids" widget="one2many_list" nolabel="1"/>
+                    </group>
+                </sheet>
+
+                <sheet>
+                    <group string='Поставки по договору'>
+                        <group >
+                            <field name="date_of_pr_start"/>
+                            <field name="production_days"/>
+                            <field name="delivery_days"/>
+                            <field name="delivery_days_to_rf"/>
+                            <field name="start_up_period"/>
+                            <field name="warranty_period"/>
+                        </group>
+                        <group>
+                            <field name="date_of_accept"/>
+                            <field name="date_of_pr_production"/>
+                            <field name="date_of_delivery"/>
+                            <field name="date_of_delivery_to_rf"/>
+                            <field name="date_of_start"/>
+                            <field name="date_of_warranty_end"/>
+                        </group>
+                    </group>
+                </sheet>
+                <sheet>
                     <group string='Расчеты по договору'>
                     </group>
-                    <group string='Аванс'>
-                        <field name="avance_contract_part_pr"/>
-                        <field name="avance_payment_delay"/>
-                        <field name="avance_terms_of_payment"/>
-                        <field name="avance_payment_date"/>
-                        <field name="avance_summ_cur_contract"/>
-                        <field name="avance_summ_cur_rub_date_podpis"/>
-                        <field name="avance_contract_part_cur"/>
-                        <field name="avance_summmode"/>
-                    </group>
-                    <group string='Уведомление'>
-                        <field name="message_contract_part_pr"/>
-                        <field name="message_payment_delay"/>
-                        <field name="message_terms_of_payment"/>
-                        <field name="message_payment_date"/>
-                        <field name="message_summ_cur_contract"/>
-                        <field name="message_summ_cur_rub_date_podpis"/>
-                        <field name="message_contract_part_cur"/>
-                        <field name="message_summmode"/>
-                    </group>
-                    <group string='Конец ПНР'>
-                        <field name="endpnr_contract_part_pr"/>
-                        <field name="endpnr_payment_delay"/>
-                        <field name="endpnr_terms_of_payment"/>
-                        <field name="endpnr_payment_date"/>
-                        <field name="endpnr_summ_cur_contract"/>
-                        <field name="endpnr_summ_cur_rub_date_podpis"/>
-                        <field name="endpnr_contract_part_cur"/>
-                        <field name="endpnr_summmode"/>
-                    </group>
-                    <group string='Фактический'>
-
-                        <field name="fact_contract_part_pr"/>
-                        <field name="fact_payment_delay"/>
-                        <field name="fact_terms_of_payment"/>
-                        <field name="fact_payment_date"/>
-                        <field name="fact_summ_cur_contract"/>
-                        <field name="fact_summ_cur_rub_date_podpis"/>
-                        <field name="fact_contract_part_cur"/>
-                        <field name="fact_summmode"/>
-                    </group>
-
-
-
-
-                    <group string='Обеспечение по договору'>
-                        <field name="contract_guarantee_type"/>
-                        <field name="refund"/>
-                        <field name="guarantee"/>
-                        <field name="cost_for_us"/>
-                    </group>
-
+                    <notebook>
+                        <page string="Аванс">
+                            <group>
+                                <field name="avance_summmode"/>
+                            </group>
+                            <group attrs="{'invisible': [('avance_summmode','=',False)]}">
+                                <group string="%">
+                                    <field name="avance_contract_part_pr" attrs="{'readonly': [('avance_summmode','=','price')]}"/>
+                                </group>
+                                <group string="$">
+                                    <field name="avance_summ_cur_contract" attrs="{'readonly': [('avance_summmode','=','persent')]}"/>
+                                    <field name="avance_summ_cur_rub_date_podpis"/>
+                                    <field name="avance_contract_part_cur"/>
+                                </group>
+                                <group colspan="2">
+                                    <field name="avance_payment_delay"/>
+                                    <field name="avance_terms_of_payment"/>
+                                    <field name="avance_payment_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Уведомление">
+                            <group>
+                                <field name="message_summmode"/>
+                            </group>
+                            <group attrs="{'invisible': [('message_summmode','=',False)]}">
+                                <group string="%">
+                                    <field name="message_contract_part_pr" attrs="{'readonly': [('message_summmode','=','price')]}"/>
+                                </group>
+                                <group string="$">
+                                    <field name="message_summ_cur_contract" attrs="{'readonly': [('message_summmode','=','persent')]}"/>
+                                    <field name="message_summ_cur_rub_date_podpis"/>
+                                    <field name="message_contract_part_cur"/>
+                                </group>
+                                <group colspan="2">
+                                    <field name="message_payment_delay"/>
+                                    <field name="message_terms_of_payment"/>
+                                    <field name="message_payment_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Конец ПНР">
+                            <group>
+                                <field name="endpnr_summmode"/>
+                            </group>
+                            <group attrs="{'invisible': [('endpnr_summmode','=',False)]}">
+                                <group string="%">
+                                    <field name="endpnr_contract_part_pr" attrs="{'readonly': [('endpnr_summmode','=','price')]}"/>
+                                </group>
+                                <group string="$">
+                                    <field name="endpnr_summ_cur_contract" attrs="{'readonly': [('endpnr_summmode','=','persent')]}"/>
+                                    <field name="endpnr_summ_cur_rub_date_podpis"/>
+                                    <field name="endpnr_contract_part_cur"/>
+                                </group>
+                                <group colspan="2">
+                                    <field name="endpnr_payment_delay"/>
+                                    <field name="endpnr_terms_of_payment"/>
+                                    <field name="endpnr_payment_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Фактический">
+                            <group>
+                                <field name="fact_summmode"/>
+                            </group>
+                            <group attrs="{'invisible': [('fact_summmode','=',False)]}">
+                                <group string="%">
+                                    <field name="fact_contract_part_pr" attrs="{'readonly': [('fact_summmode','=','price')]}"/>
+                                </group>
+                                <group string="$">
+                                    <field name="fact_summ_cur_contract" attrs="{'readonly': [('fact_summmode','=','persent')]}"/>
+                                    <field name="fact_summ_cur_rub_date_podpis"/>
+                                    <field name="fact_contract_part_cur"/>
+                                </group>
+                                <group colspan="2">
+                                    <field name="fact_payment_delay"/>
+                                    <field name="fact_terms_of_payment"/>
+                                    <field name="fact_payment_date"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
+                <sheet>
+                <group string='Обеспечение по договору'>
+                        <group >
+                            <field name="contract_guarantee_type"/>
+                            <field name="contract_guarantee_size"/>
+                            <field name="commission_bg"/>
+                            <field name="post_peripd_bg"/>
+                            <field name="post_peripd_ds"/>
+                            <field name="post_period_op"/>
+                        </group>
+                        <group>
+                            <field name="cost_for_us"/>
+                            <field name="guarantee"/>
+                            <field name="contract_period"/>
+                            <field name="guarantee_period"/>
+                            <field name="refund_period"/>
+                            <field name="refund"/>
+                            <field name="contract_enforcement"/>
+                        </group>
+                    </group>
+                </sheet>
+
             </form>
         </field>
     </record>
-
     <record id="passport_view_tree" model="ir.ui.view">
         <field name="name">prom.passport.tree</field>
         <field name="model">prom.passport</field>
+        <field name="priority" eval="1"/>
         <field name="arch" type="xml">
             <tree string="passport">
-
                 <field name="project_id"/>
                 <field name="specification_number"/>
                 <field name="state"/>
                 <field name="product_ids"/>
-
-
                 <field name="contract_number"/>
                 <field name="date_of_signing"/>
                 <field name="currency_id"/>
                 <field name="calculate_currency_id"/>
                 <field name="currency_of_signing"/>
                 <field name="price_currency_id_date_sign"/>
-                <field name="price_currency_id_actual"/>
                 <field name="price_rub_date_sign"/>
                 <field name="price_rub_actual"/>
                 <field name="pay_kind"/>
-
                 <field name="production_days"/>
                 <field name="date_of_pr_production"/>
                 <field name="delivery_days"/>
@@ -142,25 +240,34 @@
                 <field name="warranty_period"/>
                 <field name="date_of_warranty_end"/>
                 <field name="date_of_pr_start"/>
-
-
-
-
                 <field name="contract_guarantee_type"/>
                 <field name="refund"/>
                 <field name="guarantee"/>
                 <field name="cost_for_us"/>
-
-
             </tree>
         </field>
     </record>
-
-
+    <record id="passport_view_tree_min" model="ir.ui.view">
+        <field name="name">prom.passport.tree.min</field>
+        <field name="model">prom.passport</field>
+        <field name="priority" eval="15"/>
+        <field name="arch" type="xml">
+            <tree string="passport">
+                <field name="specification_number"/>
+                <field name="state"/>
+                <field name="date_of_signing"/>
+                <field name="currency_id"/>
+                <field name="price_currency_id_date_sign"/>
+                <field name="price_rub_date_sign"/>
+                <field name="price_rub_actual"/>
+                <field name="date_of_start"/>
+                <field name="date_of_accept"/>
+            </tree>
+        </field>
+    </record>
     <record id="passport_action_form" model="ir.actions.act_window">
         <field name="name">passport</field>
         <field name="res_model">prom.passport</field>
         <field name="view_mode">tree,form</field>
     </record>
-
 </odoo>

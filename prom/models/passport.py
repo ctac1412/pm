@@ -12,6 +12,58 @@ import logging
 class passport(models.Model):
     _name = 'prom.passport'
     _description = u'Паспорт сделки/ passport'
+    is_actual   = fields.Boolean(default=True)
+
+    kp_cancel_reason = fields.Text()
+    contract_cancel_reason = fields.Text()
+    state = fields.Selection(
+        selection=[
+            ('in_work', 'in_work'),
+            ('kp_cancel', 'kp_cancel'),
+            ('content_negotiation', 'content_negotiation'),
+            ('content_agreed', 'content_agreed'),
+            ('contract_sign', 'contract_sign'),
+            ('contract_cancel', 'contract_cancel'),
+            ('contract_done', 'contract_done'),
+            ('dop_contract', 'dop_contract'),
+        ], default = "in_work"
+    )
+
+    @api.multi
+    def set_state_in_work(self):
+        for r in self:
+            r.state = 'in_work'
+
+    @api.multi
+    def set_state_kp_cancel(self):
+        for r in self:
+            r.state = 'kp_cancel'
+    @api.multi
+    def set_state_content_negotiation(self):
+        for r in self:
+            r.state = 'content_negotiation'
+    @api.multi
+    def set_state_content_agreed(self):
+        for r in self:
+            r.state = 'content_agreed'
+    @api.multi
+    def set_state_contract_sign(self):
+        for r in self:
+            r.state = 'contract_sign'
+    @api.multi
+    def set_state_contract_cancel(self):
+        for r in self:
+            r.state = 'contract_cancel'
+    @api.multi
+    def set_state_contract_done(self):
+        for r in self:
+            r.state = 'contract_done'
+    @api.multi
+    def set_state_dop_contract(self):
+        for r in self:
+            r.state = 'dop_contract'
+            r.is_actual = False
+
 
     @api.model
     def actualCurse(self,date,cur_id=-1):
@@ -49,26 +101,29 @@ class passport(models.Model):
         curs = self.actualCurse(date,cur_id) 
         return   price / curs 
 
+    attachment_ids = fields.Many2many(comodel_name="ir.attachment",
+    relation="m2m_ir_attachment_relation",
+    column1="m2m_id",
+    column2="attachment_id",
+    string="Attachments")
+
     project_id = fields.Many2one(
     comodel_name="prom.project",
     )
     specification_number  = fields.Text()
-    state  = fields.Selection(
-        selection=[
-                ('1', 'actual'),
-                ('2', 'old')
-        ],
-    )
-    product_ids = fields.Many2many(
+
+
+    product_ids = fields.One2many(
         comodel_name="prom.product",
+        inverse_name="passport_id",
     )
+
     # obligation_ids = fields.Many2many(
     #     comodel_name="prom.obligation"
     # )
 
-    obligation_ids = fields.One2many(
-        comodel_name="prom.obligation",
-        inverse_name="passport_id",
+    obligation_ids = fields.Many2many(
+        comodel_name="prom.obligation"
     )
 
 
@@ -95,8 +150,8 @@ class passport(models.Model):
 
     price_currency_id_date_sign = fields.Float(compute='compute_price_currency_id_date_sign',store=True)
 
-    @api.onchange("price_rub_date_sign")
-    @api.depends("price_rub_date_sign")
+    @api.onchange("price_rub_date_sign","date_of_signing","currency_id",)
+    @api.depends("price_rub_date_sign","date_of_signing","currency_id",)
     def compute_price_currency_id_date_sign(self):  
         for r in self:
             if r.date_of_signing and r.currency_id and r.price_rub_date_sign:
@@ -110,7 +165,7 @@ class passport(models.Model):
         for r in self:
             if r.date_of_signing and r.currency_id:
                 import math
-                summInRub = math.fsum([float(self.toRub(r.date_of_signing,x.currency_id,x.price)) for x in r.product_ids])
+                summInRub = math.fsum([float(self.toRub(r.date_of_signing,r.currency_id,x.price)) for x in r.product_ids])
                 r.price_rub_date_sign = summInRub
 
     price_rub_actual = fields.Float(compute="compute_price_rub_actual")
@@ -127,8 +182,7 @@ class passport(models.Model):
     def compute_price_rub_actual(self):
         for r in self:
             import math
-            summInRub = math.fsum([float(self.toRub(fields.Datetime.now(),x.currency_id,x.price)) for x in r.product_ids])
-            print "---------------",summInRub
+            summInRub = math.fsum([float(self.toRub(fields.Datetime.now(),r.currency_id,x.price)) for x in r.product_ids])
             r.price_rub_actual = summInRub
 
 
@@ -161,7 +215,6 @@ class passport(models.Model):
     # @api.depends('price_rub_actual','project_id')
     def compute_price_rub_actual_wonds(self):
         for r in self:
-            print '------------- compute_price_rub_actual_wonds ',r.price_rub_actual
             if r.price_rub_actual and r.project_id :
                 if r.project_id.customer_company_id:
                     nds = r.project_id.customer_company_id.nds or 0
@@ -181,10 +234,7 @@ class passport(models.Model):
 
     # Поставки по договору
     production_days = fields.Integer()
-    date_of_pr_production = fields.Date(compute="compute_date_of_pr_production")
-
-
-
+    date_of_pr_production = fields.Date(compute="compute_date_of_pr_production",store=True)
 
     @api.onchange('date_of_pr_start','production_days')
     @api.depends ('date_of_pr_start','production_days')
@@ -195,10 +245,20 @@ class passport(models.Model):
             else:
                 r.date_of_pr_production = False
 
+    delivery_days_to_rf = fields.Integer()
+    date_of_delivery_to_rf  = fields.Date(compute="compute_date_of_delivery_to_rf")
 
-            
+    @api.onchange('date_of_pr_production','delivery_days_to_rf')
+    @api.depends('date_of_pr_production','delivery_days_to_rf')
+    def compute_date_of_delivery_to_rf(self):
+        for r in self:
+            if r.date_of_pr_production:
+                r.date_of_delivery_to_rf = fields.Datetime.from_string(r.date_of_pr_production) + timedelta(days=int(r.delivery_days_to_rf))
+            else:
+                r.date_of_delivery_to_rf = False
+
     delivery_days = fields.Integer()
-    date_of_delivery = fields.Date(compute="compute_date_of_delivery")
+    date_of_delivery = fields.Date(compute="compute_date_of_delivery",store=True)
 
     @api.onchange('date_of_pr_production','delivery_days')
     @api.depends('date_of_pr_production','delivery_days')
@@ -208,10 +268,10 @@ class passport(models.Model):
                 r.date_of_delivery = fields.Datetime.from_string(r.date_of_pr_production) + timedelta(days=int(r.delivery_days))
             else:
                 r.date_of_delivery = False
-            
+
 
     start_up_period = fields.Integer()
-    date_of_start = fields.Date(compute="compute_date_of_start")
+    date_of_start = fields.Date(compute="compute_date_of_start",store=True)
 
     @api.onchange('date_of_delivery','start_up_period')
     @api.depends('date_of_delivery','start_up_period')
@@ -225,7 +285,7 @@ class passport(models.Model):
 
     date_of_accept = fields.Date()
     warranty_period = fields.Integer()
-    date_of_warranty_end = fields.Date(compute='compute_date_of_warranty_end')
+    date_of_warranty_end = fields.Date(compute='compute_date_of_warranty_end',store=True)
 
     @api.onchange('date_of_start','warranty_period')
     @api.depends('date_of_start','warranty_period')
@@ -240,97 +300,189 @@ class passport(models.Model):
     date_of_pr_start = fields.Date()
 
     # Расчеты по договору
-    # payment_part_ids = fields.One2many(
-    #     comodel_name="prom.payment_part",
-    #     inverse_name="passport_id"
-    # )
 
-
-    # @api.onchange("summ_cur_contract","price_currency_id_date_sign")
-    # @api.depends("summ_cur_contract","price_currency_id_date_sign")
-    # def compute_summ(self):
-    #     for r in self:
-    #         print r.avance_summ_cur_rub_date_podpis
-    #         print r.message_summ_cur_rub_date_podpis
-    #         print r.endpnr_summ_cur_rub_date_podpis
-    #         print r.fact_summ_cur_rub_date_podpis
-    #         date_of_signing 
-    #         r.avance_summ_cur_rub_date_podpis = r.toRub()
-    #         r.message_summ_cur_rub_date_podpis = 
-    #         r.endpnr_summ_cur_rub_date_podpis = 
-    #         r.fact_summ_cur_rub_date_podpis = 
-
-
-    #         # price_rub_date_sign * contract_part_pr 
-
-
-    #         print r.avance_contract_part_cur
-    #         print r.message_contract_part_cur
-    #         print r.endpnr_contract_part_cur
-    #         print r.fact_contract_part_cur
-    
-    # @api.onchange("avance_contract_part_pr","avance_payment_delay")
-    # @api.depands("avance_contract_part_pr","avance_payment_delay")
-    # def compute_about_avance_summmode(self):
-    #     for r in self:
-    #         r.
-
+    # Аванс 
     avance_contract_part_pr = fields.Float()
+    avance_summ_cur_contract = fields.Float()
+
     avance_payment_delay = fields.Integer()
     avance_terms_of_payment = fields.Char()
     avance_payment_date = fields.Date()
-    avance_summ_cur_contract = fields.Float()
-    avance_summ_cur_rub_date_podpis = fields.Float()
-    avance_contract_part_cur = fields.Float()
+    
+    avance_contract_part_cur = fields.Float       (compute="onchange_avance_contract_part_cur",store=True)
+    avance_summ_cur_rub_date_podpis = fields.Float(compute="onchange_avance_contract_part_cur",store=True)
     avance_summmode = fields.Selection(
-        selection=[
-                ('price', 'price'),
-                ('persent', 'persent'),
-        ],
+    selection=[
+            ('price', 'price'),
+            ('persent', 'persent'),
+    ],
     )
 
+    @api.onchange("avance_summ_cur_contract","currency_id","date_of_signing")
+    @api.depends("avance_summ_cur_contract","currency_id","date_of_signing")
+    def onchange_avance_contract_part_cur(self):
+        for r in self:
+            if r.avance_summ_cur_contract and r.currency_id:
+                r.avance_contract_part_cur = self.toRub(fields.Datetime.now(),r.currency_id,r.avance_summ_cur_contract)
+            if r.avance_summ_cur_contract and r.currency_id and r.date_of_signing:
+                r.avance_summ_cur_rub_date_podpis = self.toRub(r.date_of_signing,r.currency_id,r.avance_summ_cur_contract)
+
+    @api.onchange('avance_summmode')
+    def onchange_avance_summmode(self):
+        for r in self:           
+            r.avance_contract_part_pr = False
+            r.avance_summ_cur_contract = False
+
+    @api.onchange('avance_summ_cur_contract','price_currency_id_date_sign')
+    @api.depends('avance_summ_cur_contract','price_currency_id_date_sign')
+    def onchange_avance_summ_cur_contract(self):
+        for r in self:                 
+            if r.avance_summmode == 'price' and r.avance_summ_cur_contract:
+                r.avance_contract_part_pr =  r.avance_summ_cur_contract * 100 /   r.price_currency_id_date_sign
+
+    @api.onchange('avance_contract_part_pr','price_currency_id_date_sign')
+    @api.depends('avance_contract_part_pr','price_currency_id_date_sign')
+    def onchange_avance_contract_part_pr(self):
+        for r in self:           
+            if r.avance_summmode == 'persent'  and r.avance_contract_part_pr:
+                r.avance_summ_cur_contract = r.price_currency_id_date_sign * r.avance_contract_part_pr /100
+                
+
+    # Уведомление 
     message_contract_part_pr  = fields.Float()
+    message_summ_cur_contract = fields.Float()
+
     message_payment_delay = fields.Integer()
     message_terms_of_payment = fields.Char()
     message_payment_date = fields.Date()
-    message_summ_cur_contract = fields.Float()
-    message_summ_cur_rub_date_podpis = fields.Float()
-    message_contract_part_cur = fields.Float()    
+
+    message_contract_part_cur = fields.Float(compute="onchange_message_contract_part_cur",store=True)    
+    message_summ_cur_rub_date_podpis = fields.Float(compute="onchange_message_contract_part_cur",store=True)
     message_summmode = fields.Selection(
     selection=[
             ('price', 'price'),
             ('persent', 'persent'),
-    ],
-    )
+    ])
 
+    @api.onchange("message_summ_cur_contract","currency_id","date_of_signing")
+    @api.depends("message_summ_cur_contract","currency_id","date_of_signing")
+    def onchange_message_contract_part_cur(self):
+        for r in self:
+            if r.message_summ_cur_contract and r.currency_id:
+                r.message_contract_part_cur = self.toRub(fields.Datetime.now(),r.currency_id,r.message_summ_cur_contract)
+            if r.message_summ_cur_contract and r.currency_id and r.date_of_signing:
+                r.message_summ_cur_rub_date_podpis = self.toRub(r.date_of_signing,r.currency_id,r.message_summ_cur_contract)
+                
+    @api.onchange('message_summmode')
+    def onchange_message_summmode(self):
+        for r in self:           
+            r.message_contract_part_pr = False
+            r.message_summ_cur_contract = False
+
+    @api.onchange('message_summ_cur_contract','price_currency_id_date_sign')
+    @api.depends('message_summ_cur_contract','price_currency_id_date_sign')
+    def onchange_message_summ_cur_contract(self):
+        for r in self:                 
+            if r.message_summmode == 'price' and r.message_summ_cur_contract:
+                r.message_contract_part_pr =  r.message_summ_cur_contract * 100 /   r.price_currency_id_date_sign
+
+    @api.onchange('message_contract_part_pr','price_currency_id_date_sign')
+    @api.depends('message_contract_part_pr','price_currency_id_date_sign')
+    def onchange_message_contract_part_pr(self):
+        for r in self:           
+            if r.message_summmode == 'persent'  and r.message_contract_part_pr:
+                r.message_summ_cur_contract = r.price_currency_id_date_sign * r.message_contract_part_pr /100
+
+    # Конец ПНР 
     endpnr_contract_part_pr  = fields.Float()
+    endpnr_summ_cur_contract = fields.Float()
+
     endpnr_payment_delay = fields.Integer()
     endpnr_terms_of_payment = fields.Char()
     endpnr_payment_date = fields.Date()
-    endpnr_summ_cur_contract = fields.Float()
-    endpnr_summ_cur_rub_date_podpis = fields.Float()
-    endpnr_contract_part_cur = fields.Float()
+
+    endpnr_contract_part_cur = fields.Float(compute="onchange_endpnr_contract_part_cur",store=True)    
+    endpnr_summ_cur_rub_date_podpis = fields.Float(compute="onchange_endpnr_contract_part_cur",store=True)
     endpnr_summmode = fields.Selection(
     selection=[
             ('price', 'price'),
             ('persent', 'persent'),
-    ],
-    )
+    ])
 
+    @api.onchange("endpnr_summ_cur_contract","currency_id","date_of_signing")
+    @api.depends("endpnr_summ_cur_contract","currency_id","date_of_signing")
+    def onchange_endpnr_contract_part_cur(self):
+        for r in self:
+            if r.endpnr_summ_cur_contract and r.currency_id:
+                r.endpnr_contract_part_cur = self.toRub(fields.Datetime.now(),r.currency_id,r.endpnr_summ_cur_contract)
+            if r.endpnr_summ_cur_contract and r.currency_id and r.date_of_signing:
+                r.endpnr_summ_cur_rub_date_podpis = self.toRub(r.date_of_signing,r.currency_id,r.endpnr_summ_cur_contract)
+                
+    @api.onchange('endpnr_summmode')
+    def onchange_endpnr_summmode(self):
+        for r in self:           
+            r.endpnr_contract_part_pr = False
+            r.endpnr_summ_cur_contract = False
+
+    @api.onchange('endpnr_summ_cur_contract','price_currency_id_date_sign')
+    @api.depends('endpnr_summ_cur_contract','price_currency_id_date_sign')
+    def onchange_endpnr_summ_cur_contract(self):
+        for r in self:                 
+            if r.endpnr_summmode == 'price' and r.endpnr_summ_cur_contract:
+                r.endpnr_contract_part_pr =  r.endpnr_summ_cur_contract * 100 /   r.price_currency_id_date_sign
+
+    @api.onchange('endpnr_contract_part_pr','price_currency_id_date_sign')
+    @api.depends('endpnr_contract_part_pr','price_currency_id_date_sign')
+    def onchange_endpnr_contract_part_pr(self):
+        for r in self:           
+            if r.endpnr_summmode == 'persent'  and r.endpnr_contract_part_pr:
+                r.endpnr_summ_cur_contract = r.price_currency_id_date_sign * r.endpnr_contract_part_pr /100
+
+
+    # Фактические
     fact_contract_part_pr  = fields.Float()
+    fact_summ_cur_contract = fields.Float()
+
     fact_payment_delay = fields.Integer()
     fact_terms_of_payment = fields.Char()
     fact_payment_date = fields.Date()
-    fact_summ_cur_contract = fields.Float()
-    fact_summ_cur_rub_date_podpis = fields.Float()
-    fact_contract_part_cur = fields.Float()
+
+    fact_contract_part_cur = fields.Float(compute="onchange_fact_contract_part_cur",store=True)    
+    fact_summ_cur_rub_date_podpis = fields.Float(compute="onchange_fact_contract_part_cur",store=True)
     fact_summmode = fields.Selection(
     selection=[
             ('price', 'price'),
             ('persent', 'persent'),
-    ],
-    )
+    ])
 
+    @api.onchange("fact_summ_cur_contract","currency_id","date_of_signing")
+    @api.depends("fact_summ_cur_contract","currency_id","date_of_signing")
+    def onchange_fact_contract_part_cur(self):
+        for r in self:
+            if r.fact_summ_cur_contract and r.currency_id:
+                r.fact_contract_part_cur = self.toRub(fields.Datetime.now(),r.currency_id,r.fact_summ_cur_contract)
+            if r.fact_summ_cur_contract and r.currency_id and r.date_of_signing:
+                r.fact_summ_cur_rub_date_podpis = self.toRub(r.date_of_signing,r.currency_id,r.fact_summ_cur_contract)
+                
+    @api.onchange('fact_summmode')
+    def onchange_fact_summmode(self):
+        for r in self:           
+            r.fact_contract_part_pr = False
+            r.fact_summ_cur_contract = False
+
+    @api.onchange('fact_summ_cur_contract','price_currency_id_date_sign')
+    @api.depends('fact_summ_cur_contract','price_currency_id_date_sign')
+    def onchange_fact_summ_cur_contract(self):
+        for r in self:                 
+            if r.fact_summmode == 'price' and r.fact_summ_cur_contract:
+                r.fact_contract_part_pr =  r.fact_summ_cur_contract * 100 /   r.price_currency_id_date_sign
+
+    @api.onchange('fact_contract_part_pr','price_currency_id_date_sign')
+    @api.depends('fact_contract_part_pr','price_currency_id_date_sign')
+    def onchange_fact_contract_part_pr(self):
+        for r in self:           
+            if r.fact_summmode == 'persent'  and r.fact_contract_part_pr:
+                r.fact_summ_cur_contract = r.price_currency_id_date_sign * r.fact_contract_part_pr /100
 
     # Обеспечение по договору
     contract_guarantee_type  = fields.Selection(
@@ -339,12 +491,81 @@ class passport(models.Model):
                 ('money', 'money'),
         ],
     )
-    refund = fields.Float()
-    guarantee = fields.Float()
-    cost_for_us = fields.Float()
+    
+    
 
     contract_guarantee_size = fields.Float()
     commission_bg = fields.Float()
     post_peripd_bg= fields.Integer()
-    post_peripd_ds= fields.Integer()
+    post_peripd_ds = fields.Integer()
     post_period_op = fields.Integer()
+    refund_period = fields.Integer(compute="compute_refund_period",store=True)
+
+    @api.onchange('production_days','post_peripd_bg')
+    @api.depends('production_days','post_peripd_bg')
+    def compute_refund_period(self):
+        for r in self:
+            r.refund_period = r.production_days + r.post_peripd_bg
+
+    refund = fields.Float(compute="compute_refund",store=True)
+    @api.onchange('contract_guarantee_type','price_currency_id_date_sign','avance_contract_part_pr','commission_bg','refund_period','contract_guarantee_size')
+    @api.depends('contract_guarantee_type','price_currency_id_date_sign','avance_contract_part_pr','commission_bg','refund_period','contract_guarantee_size')
+    def compute_refund(self):
+        for r in self:
+            if r.contract_guarantee_type == "bank_guarantees" and r.avance_contract_part_pr and r.price_currency_id_date_sign: 
+                r.refund = r.price_currency_id_date_sign * r.avance_contract_part_pr * self.verifyFloat(r.commission_bg) / 12 * self.verifyFloat(r.refund_period)
+            elif r.contract_guarantee_type == "money" and r.avance_contract_part_pr:
+                r.refund = r.price_currency_id_date_sign * self.verifyFloat(r.contract_guarantee_size)
+
+    contract_enforcement = fields.Float(compute="compute_contract_enforcement")
+
+    @api.onchange('contract_guarantee_type','price_currency_id_date_sign','commission_bg','refund_period','contract_guarantee_size')
+    @api.depends('contract_guarantee_type','price_currency_id_date_sign','commission_bg','refund_period','contract_guarantee_size')
+    def compute_contract_enforcement(self):
+        for r in self:
+            if r.contract_guarantee_type == "bank_guarantees" and r.price_currency_id_date_sign: 
+                r.contract_enforcement = r.price_currency_id_date_sign * self.verifyFloat(r.contract_guarantee_size) * self.verifyFloat(r.commission_bg) / 12 * self.verifyFloat(r.refund_period)
+            elif r.contract_guarantee_type == "money" and r.price_currency_id_date_sign:
+                r.contract_enforcement = r.price_currency_id_date_sign * self.verifyFloat(r.contract_guarantee_size)
+
+
+    contract_period = fields.Integer(compute='compute_contract_period',store=True)
+
+    @api.onchange('post_period_op','production_days')
+    @api.depends('post_period_op','production_days')
+    def compute_contract_period(self):
+        for r in self:
+            r.contract_period = r.production_days + r.post_period_op
+
+    guarantee_period  = fields.Integer(compute='compute_guarantee_period',store=True)
+
+    @api.onchange('warranty_period','post_period_op')
+    @api.depends('warranty_period','post_period_op')
+    def compute_guarantee_period(self):
+        for r in self:
+            r.guarantee_period = r.warranty_period + r.post_period_op + 1
+
+    guarantee = fields.Integer(compute='compute_guarantee',store=True)
+
+    @api.onchange('contract_guarantee_type','price_currency_id_date_sign','commission_bg','guarantee_period','contract_guarantee_size')
+    @api.depends('contract_guarantee_type','price_currency_id_date_sign','commission_bg','guarantee_period','contract_guarantee_size')
+    def compute_guarantee(self):
+        for r in self:
+            if r.contract_guarantee_type == "bank_guarantees"  and r.price_currency_id_date_sign: 
+                r.guarantee = r.price_currency_id_date_sign * self.verifyFloat(r.contract_guarantee_size) * self.verifyFloat(r.commission_bg) / 12 * self.verifyFloat(r.guarantee_period)
+            elif r.contract_guarantee_type == "money" and r.price_currency_id_date_sign:
+                r.guarantee =  r.price_currency_id_date_sign * self.verifyFloat(r.contract_guarantee_size)
+
+    cost_for_us = fields.Float(compute='compute_cost_for_us',store=True)
+
+    @api.onchange('refund','contract_enforcement','guarantee')
+    @api.depends('refund','contract_enforcement','guarantee')
+    def compute_cost_for_us(self):
+        for r in self:
+            r.guarantee = r.refund+r.contract_enforcement+r.guarantee
+
+
+    def verifyFloat(self,f):
+        if not f:
+            return 1
+        return f

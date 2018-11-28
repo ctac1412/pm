@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_prom" name="prom" sequence="1"/>
+    <menuitem id="menu_prom" name="prom" sequence="0"/>
     <menuitem id="menu_project" name="project" parent="menu_prom" action="project_action_form" sequence="1"/>
     <menuitem id="menu_passport" name="passport" parent="menu_prom" action="passport_action_form"/>
     <menuitem id="menu_product" name="product" parent="menu_prom" action="product_action_form"/>

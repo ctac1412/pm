@@ -17,9 +17,59 @@ class res_company(models.Model):
     _inherit = ['res.company']
     nds = fields.Float()
 
+    is_own =  fields.Boolean()
+    is_rf =  fields.Boolean()
+     
+    nds_type = fields.Selection(
+        selection=[
+                ('orn', 'orn'),
+                ('ysn', 'ysn'),
+        ],
+    )
+    activity = fields.Text()
+
+
 class project(models.Model):
     _name = 'prom.project'
     _description = u'List of projects'
+    _inherit = ['mail.thread']
+
+    state = fields.Selection(
+        
+        selection=[
+                ('in_work', 'in_work'),
+                ('kp', 'kp'),
+                ('contract', 'contract'),
+                ('reject', 'reject'),
+                ('contract_done', 'contract_done'),
+        ], default = "in_work", compute='compute_state'
+    )
+
+    @api.multi
+    def compute_state(self):
+        for r in self:
+            is_y = False
+            if r.passport_ids:
+                p = r.passport_ids.filtered(lambda y: y.is_actual == True)
+                if p:
+                     p = p[0]
+                if p:
+                    if p.state in ['in_work','content_negotiation','content_agreed']:
+                        r.state = 'kp'
+                        is_y=True
+                    elif p.state in ['contract_sign','dop_contract']:
+                        r.state = 'contract'
+                        is_y=True
+                    elif p.state in ['kp_cancel','contract_cancel']:
+                        r.state = 'reject'
+                        is_y=True
+                    elif p.state in ['contract_done']:
+                        r.state = 'contract_done'
+                        is_y=True
+            if not is_y:
+                
+                r.state = 'in_work'
+
     name = fields.Char()
     manager_user_id = fields.Many2one(
         string="manager of project",
@@ -34,27 +84,39 @@ class project(models.Model):
     )
 
     kind_podryad = fields.Selection(
-
         selection=[
             ('main', 'main'),
             ('contractor', 'contractor'),
             ('subcontractor', 'subcontractor'),
-        ],
+        ], comppute="compute_kind_podryad"
     )
+
+    @api.onchange('parent_project_id')
+    @api.depends('parent_project_id')
+    def compute_kind_podryad(self):
+        for r in self:
+            if not r.parent_project_id:
+                r.kind_podryad = "main"
+            elif r.parent_project_id and not r.parent_project_id.parent_project_id:
+                r.kind_podryad = "contractor"
+            elif r.parent_project_id and r.parent_project_id.parent_project_id:
+                r.kind_podryad = "subcontractor"
+
     parent_project_id = fields.Many2one(
         comodel_name="prom.project",
     )
-    state = fields.Selection(
-        selection=[
-            ('1', 'kp'),
-            ('2', 'kp_cancel'),
-            ('3', 'contract_new'),
-            ('4', 'contract_cancel'),
-            ('5', 'contract_done'),
-            ('6', 'dop_contract_await'),
-            ('7', 'dop_contract_sign'),
-        ],
+
+
+    sub_project_ids = fields.Many2many(
+        comodel_name="prom.project",
+        relation="project_sub_project",
+        column1="project_id",
+        column2="sub_project_id",
     )
+
+
+
+
     passport_ids = fields.One2many(
 
         comodel_name="prom.passport",

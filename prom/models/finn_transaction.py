@@ -19,9 +19,8 @@ class finn_transaction(models.Model):
         ], default='income'
     )
 
-    finn_obligation_id = fields.One2many(
-        comodel_name="prom.finn_obligation",
-        inverse_name="finn_transaction_id",
+    obligation_ids = fields.Many2many(
+        comodel_name="prom.obligation"
     )
 
     fin_spec = fields.Char()
@@ -38,3 +37,25 @@ class finn_transaction(models.Model):
     passport_id = fields.Many2one(
         comodel_name="prom.passport"
     )
+    
+    # fin_price_currency = fields.Float(compute="compute_fin_price_currency", store=True)
+    # @api.onchange('')
+    # @api.depends('')
+    # def compute_fin_price_currency(self):
+    #     for r in self:
+    #         fin_price 
+    #         r.fin_price_currency = False
+
+    fin_sum = fields.Float(compute="compute_fin_sum", store=True)
+    
+    @api.onchange('fin_price','fin_number')
+    @api.depends('fin_price','fin_number')
+    def compute_fin_sum(self):
+        for r in self:
+            r.fin_sum = r.fin_price + r.fin_number
+
+    fin_sum_currency = fields.Float()
+
+
+    
+    # fin_sum_currency = fields.Float(compute="compute_fin_sum_currency", store=True)

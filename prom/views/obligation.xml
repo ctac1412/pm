@@ -6,19 +6,22 @@
         <field name="arch" type="xml">
             <form string="product">
                 <sheet>
+                    <h1>Обязательства</h1>
                     <group>
-                        <field name="name"/>
-                        <field name="passport_id"/>
-                        <field name="currency_id"/>
-                        <field name="price"/>
-                        <field name="persent"/>
-                        <field name="unit"/>
-                        <field name="count"/>
-                        <field name="obligation_type_id"/>
                         <field name="compute_mode"/>
-
-                        
-                        
+                        <field name="name"/>
+                        <field name="persent"/>
+                        <field name="obligation_type_id"/>
+                    </group>
+                    <group >
+                        <group>
+                            <field name="count"/>
+                            <field name="price"/>
+                        </group>
+                        <group>
+                            <field name="unit"/>
+                            <!-- <field name="currency_id"/> -->
+                        </group>
                     </group>
                 </sheet>
             </form>
@@ -29,22 +32,18 @@
         <field name="model">prom.obligation</field>
         <field name="arch" type="xml">
             <tree string="product">
-                        <field name="name"/>
-                        
-                        <field name="passport_id"/>
-                        <field name="currency_id"/>
-                        <field name="price"/>
-                        <field name="persent"/>
-                        <field name="unit"/>
-                        <field name="count"/>
-                        <field name="obligation_type_id"/>
-                        <field name="compute_mode"/>
+                <field name="name"/>
+                <!-- <field name="currency_id"/> -->
+                <field name="price"/>
+                <field name="persent"/>
+                <field name="unit"/>
+                <field name="count"/>
+                <field name="obligation_type_id"/>
+                <field name="compute_mode"/>
             </tree>
         </field>
     </record>
-
-
-   <record id="finn_obligation_view_form" model="ir.ui.view">
+    <!-- <record id="finn_obligation_view_form" model="ir.ui.view">
         <field name="name">prom.finn_obligation.form</field>
         <field name="model">prom.finn_obligation</field>
         <field name="arch" type="xml">
@@ -52,7 +51,6 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        
                         <field name="currency_id"/>
                         <field name="price"/>
                         <field name="persent"/>
@@ -60,9 +58,6 @@
                         <field name="count"/>
                         <field name="finn_transaction_id"/>
                         <field name="compute_mode"/>
-
-                        
-                        
                     </group>
                 </sheet>
             </form>
@@ -74,7 +69,6 @@
         <field name="arch" type="xml">
             <tree string="product">
                         <field name="name"/>
-                     
                         <field name="currency_id"/>
                         <field name="price"/>
                         <field name="persent"/>
@@ -84,17 +78,16 @@
                         <field name="compute_mode"/>
             </tree>
         </field>
-    </record>
-
+    </record> -->
     <record id="obligation_action_form" model="ir.actions.act_window">
         <field name="name">obligation</field>
         <field name="res_model">prom.obligation</field>
         <field name="view_mode">tree,form</field>
-    </record> 
-
+    </record>
+    <!-- 
     <record id="finn_obligation_action_form" model="ir.actions.act_window">
         <field name="name">finn_obligation</field>
         <field name="res_model">prom.finn_obligation</field>
         <field name="view_mode">tree,form</field>
-    </record> 
+    </record>  -->
 </odoo>
