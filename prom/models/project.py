@@ -3,23 +3,19 @@
 #    License, author and contributors information in:                         #
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
+from lxml import etree
 import logging
 _logger = logging.getLogger("project")
-
-
 
 class res_company(models.Model):
     _name = 'res.company'
     _inherit = ['res.company']
     nds = fields.Float()
-
     is_own =  fields.Boolean()
     is_rf =  fields.Boolean()
-     
     nds_type = fields.Selection(
         selection=[
                 ('orn', 'orn'),
@@ -33,9 +29,27 @@ class project(models.Model):
     _name = 'prom.project'
     _description = u'List of projects'
     _inherit = ['mail.thread']
+    @api.model
+
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+
+        res = super(project, self).fields_view_get(view_id, view_type, toolbar=toolbar, submenu=submenu)
+        group_id = self.user_has_groups('prom.group_manager')
+        doc = etree.XML(res['arch'])
+        if not group_id:
+            if view_type == 'tree':
+                nodes = doc.xpath("//tree[@string='project']")
+                for node in nodes:
+                    node.set('create', '0')
+                res['arch'] = etree.tostring(doc)
+            if view_type == 'form':
+                nodes = doc.xpath("//form[@string='project']")
+                for node in nodes:
+                    node.set('create', '0')
+                res['arch'] = etree.tostring(doc)
+        return res
 
     state = fields.Selection(
-        
         selection=[
                 ('in_work', 'in_work'),
                 ('kp', 'kp'),
@@ -44,7 +58,6 @@ class project(models.Model):
                 ('contract_done', 'contract_done'),
         ], default = "in_work", compute='compute_state'
     )
-
     @api.multi
     def compute_state(self):
         for r in self:
@@ -67,13 +80,12 @@ class project(models.Model):
                         r.state = 'contract_done'
                         is_y=True
             if not is_y:
-                
                 r.state = 'in_work'
-
     name = fields.Char()
     manager_user_id = fields.Many2one(
         string="manager of project",
         comodel_name="res.users",
+        default=lambda self: self.env.user,
         help="Responsible person.",
     )
     customer_company_id = fields.Many2one(
@@ -82,15 +94,13 @@ class project(models.Model):
     contractor_company_id = fields.Many2one(
         comodel_name="res.company",
     )
-
     kind_podryad = fields.Selection(
         selection=[
             ('main', 'main'),
             ('contractor', 'contractor'),
             ('subcontractor', 'subcontractor'),
-        ], comppute="compute_kind_podryad"
+        ], comppute="compute_kind_podryad",store=True
     )
-
     @api.onchange('parent_project_id')
     @api.depends('parent_project_id')
     def compute_kind_podryad(self):
@@ -106,19 +116,30 @@ class project(models.Model):
         comodel_name="prom.project",
     )
 
+    def add_sub_project_ids(self):
+        # action = self.env.ref('').read()[0]
+        # action['context'] = {'default_parent_project_id': self.id}
+        # action['target']= 'current'
+   
+        return {
+            'name':u'Новый субподряд',
+            'type': 'ir.actions.act_window',
+            'res_model': 'prom.project',
+            'view_mode': 'form',
+            'target': 'current',
+            'context':{'default_parent_project_id': self.id}
+            }
 
-    sub_project_ids = fields.Many2many(
+    
+
+    sub_project_ids = fields.One2many(
         comodel_name="prom.project",
-        relation="project_sub_project",
-        column1="project_id",
-        column2="sub_project_id",
+        inverse_name = "parent_project_id"    
+        # relation="project_sub_project",
+        # column1="project_id",
+        # column2="sub_project_id",
     )
-
-
-
-
     passport_ids = fields.One2many(
-
         comodel_name="prom.passport",
         inverse_name="project_id",
     )

@@ -12,7 +12,13 @@
     'version': '0.1',
     'depends': ['base',"mail"],
     'data': [
-        "data/cron.xml",
+        'data/cron.xml',
+        'security/ir.model.access.csv',
+        'groups/groups.xml',
+
+        'security/project_access_rules.xml',
+
+
         'views/product.xml',
         'views/obligation.xml',
         'views/finn_transaction.xml',

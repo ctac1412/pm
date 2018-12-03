@@ -9,11 +9,122 @@ from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime,timedelta
 import logging
 
+class validate_passport(models.Model):
+    _name = 'prom.validate_passport'
+    _rec_name = "validate_user"
+
+    group_name = fields.Char()
+    is_validate = fields.Boolean(defult=False)
+    validate_time = fields.Datetime()
+    validate_user = fields.Many2one(comodel_name="res.users", default=lambda self: self.env.user)
+    # passport_id = fields.Many2one(comodel_name="prom.passport")
+
+    # <!-- group_manager - Менеджер  -->
+    # <!-- group_commercial_department - Коммерческий отдел  -->
+    # <!-- group_support - Техническая служба  -->
+    # <!-- logistics_service - Служба логистики -->
+    # <!-- group_chief_accountant - Главный бухгалтер  -->
+    # <!-- group_financial_director - Финансовый директор  -->
+    # <!-- group_legal_service - Юридическая служба  -->
+    # <!-- group_security_service -Служба безопасности   -->
+
+
 class passport(models.Model):
     _name = 'prom.passport'
     _description = u'Паспорт сделки/ passport'
+    _inherit = ['mail.thread']
     is_actual   = fields.Boolean(default=True)
 
+    group_commercial_department_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+    group_support_department_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+    group_logistics_service_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+    group_chief_accountant_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+    group_financial_director_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+    group_legal_service_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+    group_security_service_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
+
+    group_commercial_department_is_validate = fields.Boolean(related="group_commercial_department_v_p_id.is_validate")
+    group_support_department_is_validate = fields.Boolean(related="group_support_department_v_p_id.is_validate")
+    group_logistics_service_is_validate = fields.Boolean(related="group_logistics_service_v_p_id.is_validate")
+    group_chief_accountant_is_validate = fields.Boolean(related="group_chief_accountant_v_p_id.is_validate")
+    group_financial_director_is_validate = fields.Boolean(related="group_financial_director_v_p_id.is_validate")
+    group_legal_service_is_validate = fields.Boolean(related="group_legal_service_v_p_id.is_validate")
+    group_security_service_is_validate = fields.Boolean(related="group_security_service_v_p_id.is_validate")
+
+    group_commercial_department_validate_time = fields.Datetime(related="group_commercial_department_v_p_id.validate_time")
+    group_support_department_validate_time = fields.Datetime(related="group_support_department_v_p_id.validate_time")
+    group_logistics_service_validate_time = fields.Datetime(related="group_logistics_service_v_p_id.validate_time")
+    group_chief_accountant_validate_time = fields.Datetime(related="group_chief_accountant_v_p_id.validate_time")
+    group_financial_director_validate_time = fields.Datetime(related="group_financial_director_v_p_id.validate_time")
+    group_legal_service_validate_time = fields.Datetime(related="group_legal_service_v_p_id.validate_time")
+    group_security_service_validate_time = fields.Datetime(related="group_security_service_v_p_id.validate_time")
+
+    # validate_passport_ids = fields.One2many(
+    #     comodel_name="prom.validate_passport",
+    #     inverse_name="passport_id"
+    # )
+    @api.multi
+    def create_validate(self):
+        for r in self:
+            r.group_commercial_department_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Коммерческий отдел"}).id
+            r.group_support_department_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Техническая служба"}).id
+            r.group_logistics_service_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Служба логистики"}).id
+            r.group_chief_accountant_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Главный бухгалтер"}).id
+            r.group_financial_director_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Финансовый директор"}).id
+            r.group_legal_service_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Юридическая служба"}).id
+            r.group_security_service_v_p_id = r.env["prom.validate_passport"].create({"group_name":u"Служба безопасности"}).id
+
+    @api.multi
+    def validate_group_manager(self):
+        group_id = self._context.get("group",False)
+        for r in self:
+            vl= self.env["prom.validate_passport"].search([('id','=',group_id)],limit=1)
+            vl.validate_time = fields.Datetime.now()
+            vl.is_validate = True
+            vl.validate_user = self.env.user
+            state = True
+            if not r.group_commercial_department_is_validate: state = False
+            if not r.group_support_department_is_validate: state = False
+            if not r.group_logistics_service_is_validate: state = False
+            if not r.group_chief_accountant_is_validate: state = False
+            if not r.group_financial_director_is_validate: state = False
+            if not r.group_legal_service_is_validate: state = False
+            if not r.group_security_service_is_validate: state = False
+            
+            print "---------", state
+            if state:
+                r.state = "content_agreed"
+            else:
+                r.state = "content_negotiation"
+    
+    @api.multi
+    def un_validate_group_manager(self):
+        group_id = self._context.get("group",False)
+        for r in self:
+            vl= self.env["prom.validate_passport"].search([('id','=',group_id)],limit=1)
+            vl.validate_time = False
+            vl.is_validate = False
+            vl.validate_user = False
+            state = True
+            if not r.group_commercial_department_is_validate: state = False
+            if not r.group_support_department_is_validate: state = False
+            if not r.group_logistics_service_is_validate: state = False
+            if not r.group_chief_accountant_is_validate: state = False
+            if not r.group_financial_director_is_validate: state = False
+            if not r.group_legal_service_is_validate: state = False
+            if not r.group_security_service_is_validate: state = False
+            
+            if state:
+                r.state = "content_agreed"
+            else:
+                r.state = "content_negotiation"
+
+    # def group_commercial_department_v_p_validate(self):
+        
+    #     self.validate_group_manager()
+    # def group_commercial_department_v_p_un_validate(self,c):
+    #     self.un_validate_group_manager()
+    
     kp_cancel_reason = fields.Text()
     contract_cancel_reason = fields.Text()
     state = fields.Selection(
@@ -41,6 +152,7 @@ class passport(models.Model):
     @api.multi
     def set_state_content_negotiation(self):
         for r in self:
+            r.create_validate()
             r.state = 'content_negotiation'
     @api.multi
     def set_state_content_agreed(self):
@@ -166,7 +278,9 @@ class passport(models.Model):
             if r.date_of_signing and r.currency_id:
                 import math
                 summInRub = math.fsum([float(self.toRub(r.date_of_signing,r.currency_id,x.price)) for x in r.product_ids])
-                r.price_rub_date_sign = summInRub
+                nds = r.project_id.customer_company_id.nds or 0
+                # r.price_rub_date_sign_wonds = r.price_rub_date_sign 
+                r.price_rub_date_sign = summInRub + (summInRub * (nds/100))
 
     price_rub_actual = fields.Float(compute="compute_price_rub_actual")
 
