@@ -7,46 +7,90 @@
             <form string="finn_transaction">
                 <sheet>
                     <h1>Финансовая часть </h1>
-                    <group>
+                  
                         <group>
                             <field name="fin_type"/>
-                            <field name="fin_spec"/>
-                            <field name="fin_number"/>
-                            <field name="fin_price"/>
-                            <field name="fin_price_currency_hand"/>
                             <field name="fin_price_mode"/>
-                        </group>
-                        <group>
+                            <field name="payment_doc_num"/>
+                            <field name="payment_doc_date"/>
+                            <field name="customer_company_id"/>
+                            <field name="contractor_company_id"/>
+
+                            
+
+                            <field name="specification_number" />
+                            <field name="name" />
+                            <field name="transfer_date" />
+                            <field name="invoice_for_payment" />
+                            <field name="purpose_of_payment" />
+                            <field name="comment_for_payment" />
+                            <field name="payment_amount" />
+                            <field name="payment_amount_rub" />
+                            <field name="nds_percent" />
                             <field name="passport_id" readonly="1"/>
-                            <field name="fin_sum"/>
-                            <field name="fin_sum_currency"/>
+                            <field name="nds_sum" />
+                            <field name="nds_sum_rub" />
                         </group>
+
+                   
+                    <group string="Тип товара и услуги">
+                        <field name="obligation_type_id"/>
                     </group>
-                    <group string="Обязательства">
-                        <field nolabel="1" name="obligation_ids" widget="one2many_list"/>
-                    </group>
+
+                  
+
+
+
+
+
                 </sheet>
             </form>
         </field>
     </record>
+
     <record id="finn_transaction_view_tree" model="ir.ui.view">
         <field name="name">prom.finn_transaction.tree</field>
         <field name="model">prom.finn_transaction</field>
         <field name="arch" type="xml">
             <tree string="finn_transaction">
-                <field name="fin_type"/>
-                <field name="obligation_ids"/>
-                <field name="fin_spec"/>
-                <field name="fin_number"/>
-                <field name="fin_price"/>
-                <field name="fin_price_currency_hand"/>
-                <field name="fin_price_mode"/>
-                <field name="passport_id"/>
-                <field name="fin_sum"/>
-                <field name="fin_sum_currency"/>
+                <field name="fin_type" />
+                <field name="obligation_type_id" />
+                <field name="fin_price_mode" />
+                <field name="passport_id" />
+                <field name="specification_number" />
+                <field name="name" />
+                <field name="transfer_date" />
+                <field name="invoice_for_payment" />
+                <field name="purpose_of_payment" />
+                <field name="comment_for_payment" />
+                <field name="payment_amount" />
+                <field name="payment_amount_rub" />
+                <field name="nds_percent" />
+                <field name="nds_sum" />
+                <field name="nds_sum_rub" />
             </tree>
         </field>
     </record>
+
+    <record id="finn_transaction_view_tree_min" model="ir.ui.view">
+        <field name="name">prom.finn_transaction.tree.min</field>
+        <field name="model">prom.finn_transaction</field>
+        <field name="arch" type="xml">
+            <tree string="finn_transaction">
+                <field name="fin_type" />
+                <field name="obligation_type_id" />
+                <field name="fin_price_mode" />
+                <field name="name" />
+                <field name="transfer_date" />
+                <field name="invoice_for_payment" />
+                <field name="purpose_of_payment" />
+                <field name="comment_for_payment" />
+                <field name="payment_amount" />
+                <field name="payment_amount_rub" />
+            </tree>
+        </field>
+    </record>
+
     <record id="finn_transaction_action_form" model="ir.actions.act_window">
         <field name="name">finn_transaction</field>
         <field name="res_model">prom.finn_transaction</field>

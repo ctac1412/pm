@@ -13,7 +13,7 @@ _logger = logging.getLogger("settlements")
 
 class settlements(models.Model):
     _name = 'prom.settlements'
-    _description = u'Settlements of contract/ Расчеты по договору'
+    _description = u'Settlements of contract'
     passport_id = fields.Many2one(
         comodel_name="prom.passport"
     )

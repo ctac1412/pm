@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="obligation_type_view_form" model="ir.ui.view">
+        <field name="name">prom.obligation_type.form</field>
+        <field name="model">prom.obligation_type</field>
+        <field name="arch" type="xml">
+            <form string="obligation_type">
+                <sheet>
+                 
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="obligation_type_view_tree" model="ir.ui.view">
+        <field name="name">prom.obligation_type.tree</field>
+        <field name="model">prom.obligation_type</field>
+        <field name="arch" type="xml">
+            <tree string="obligation_type">
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="obligation_type_action_form" model="ir.actions.act_window">
+        <field name="name">obligation_type</field>
+        <field name="res_model">prom.obligation_type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

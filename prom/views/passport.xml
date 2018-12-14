@@ -11,7 +11,8 @@
                     <button type="object" class="oe_stat_button" name="set_state_kp_cancel" string="set_state_kp_cancel" attrs="{'invisible':[('state','not in',['in_work'])]}"/>
                     <button type="object" class="oe_stat_button" name="set_state_content_negotiation" string="set_state_content_negotiation" attrs="{'invisible':[('state','not in',['in_work'])]}"/>
                     <!-- <button type="object" class="oe_stat_button" name="set_state_content_agreed" string="set_state_content_agreed"/> -->
-                    <!-- <button type="object" class="oe_stat_button" name="set_state_contract_sign" string="set_state_contract_sign"/> -->
+                    <button type="object" class="oe_stat_button" name="set_state_contract_sign" string="set_state_contract_sign" attrs="{'invisible':[('state','not in',['content_agreed'])]}"/>
+
                     <button type="object" class="oe_stat_button" name="set_state_contract_cancel" string="set_state_contract_cancel" attrs="{'invisible':[('state','not in',['contract_sign'])]}"/>
                     <button type="object" class="oe_stat_button" name="set_state_contract_done" string="set_state_contract_done" attrs="{'invisible':[('state','not in',['contract_sign'])]}"/>
                     <button type="object" class="oe_stat_button" name="set_state_dop_contract" string="set_state_dop_contract" attrs="{'invisible':[('state','not in',['contract_sign'])]}"/>
@@ -20,8 +21,17 @@
                     <field name="state" widget="statusbar" statusbar_visible="" />
                 </header>
                 <sheet>
+
                     <group string="">
-                        <field name="project_id"/>
+                        <field name="project_id" attrs="{'readonly':[('project_id','!=',False)]}"/>
+                        <field name="parent_passport_id" readonly="1"/>
+                        
+                        <label for="child_passport_id" string="child_passport_id"/>
+                        <div class="o_row">
+                            <field name="child_passport_id" readonly="1" attrs="{'invisible': [('child_passport_id','=',False)]}"/>
+                            <button name="add_sub_passport" string="Копия паспорта" type="object" class="oe_link oe_left" attrs="{'invisible': [('child_passport_id','!=',False)]}"/>
+                        </div>
+                        
                         <field name="is_actual"/>
                         <field name="kp_cancel_reason" attrs="{'invisible':[('state','not in',['kp_cancel'])]}"/>
                         <field name="contract_cancel_reason" attrs="{'invisible':[('state','not in',['contract_cancel'])]}"/>
@@ -36,7 +46,6 @@
                                 <field name="validate_group_manager_user"/>
                             </tree>
                         </field> -->
-
                     </group>
 
                     <group>
@@ -149,8 +158,9 @@
 
                 <sheet>
                     <group string='Товары и услуги'>
-                        <field name="product_ids" nolabel="1"/>
-
+                        
+                        <field name="parent_project_id" invisible="1"/>
+                        <field name="product_ids" nolabel="1" domain="['|',('project_id', '=',project_id),('parent_project_id', '=',parent_project_id)]" widget="many2many"  context="{'default_passport_id':id}"/>
                     </group>
                     <group string='Обязательства'>
                         <field name="obligation_ids" widget="one2many_list" nolabel="1"/>
@@ -287,7 +297,7 @@
 
                     <group string='Движение денежных средств'>
 
-                        <field name="finn_transaction_ids" nolabel='1' context="{'default_passport_id':id}"/>
+                        <field name="finn_transaction_ids" nolabel='1' context="{'default_passport_id':id, 'tree_view_ref' : 'prom.finn_transaction_view_tree_min'}"/>
                     </group>
                 </sheet>
 
@@ -343,6 +353,7 @@
         <field name="priority" eval="15"/>
         <field name="arch" type="xml">
             <tree string="passport">
+                <field name="is_actual"/>
                 <field name="specification_number"/>
                 <field name="state"/>
                 <field name="date_of_signing"/>
@@ -352,6 +363,7 @@
                 <field name="price_rub_actual"/>
                 <field name="date_of_start"/>
                 <field name="date_of_accept"/>
+                <button name="open_one2many_line" type="object" class="oe_highlight" string="Открыть" />
             </tree>
         </field>
     </record>

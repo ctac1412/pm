@@ -13,7 +13,7 @@ _logger = logging.getLogger("legal_person")
 
 class legal_person(models.Model):
     _name = 'prom.legal_person'
-    _description = u'Legal_person/Юридическое лицо'
+    _description = u'Legal_person'
     name = fields.Char()
     kind = fields.Selection(
         string="kind of contract",

@@ -29,10 +29,30 @@ class project(models.Model):
     _name = 'prom.project'
     _description = u'List of projects'
     _inherit = ['mail.thread']
+
+    @api.multi
+    def add_passport(self):
+        # action = self.env.ref('').read()[0]
+        # action['context'] = {'default_parent_project_id': self.id}
+        # action['target']= 'current'
+   
+        return {
+            'name':u'Новый субподряд',
+            'type': 'ir.actions.act_window',
+            'res_model': 'prom.passport',
+            'view_mode': 'form',
+            'target': 'current',
+            'context':{'default_project_id': self.id}
+            }
+
+        # for r in self:
+        #     r.passport_ids = [0,0,{
+        #         "project_id":r.id
+        #     }]
+
+
     @api.model
-
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-
         res = super(project, self).fields_view_get(view_id, view_type, toolbar=toolbar, submenu=submenu)
         group_id = self.user_has_groups('prom.group_manager')
         doc = etree.XML(res['arch'])
@@ -127,10 +147,20 @@ class project(models.Model):
             'res_model': 'prom.project',
             'view_mode': 'form',
             'target': 'current',
-            'context':{'default_parent_project_id': self.id}
+            'context':{'default_parent_project_id': self.id,'default_customer_company_id': self.contractor_company_id.id}
             }
 
-    
+    @api.multi 
+    def open_one2many_line(self):
+        return {
+                         'type': 'ir.actions.act_window',
+                         'name': 'Model Title',
+                         'view_type': 'form',
+                         'view_mode': 'form',
+                         'res_model': self._name,
+                         'res_id': self.id,
+                         'target': 'current',
+                    }
 
     sub_project_ids = fields.One2many(
         comodel_name="prom.project",

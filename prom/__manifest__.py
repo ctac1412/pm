@@ -21,6 +21,8 @@
 
         'views/product.xml',
         'views/obligation.xml',
+        'views/obligation_type.xml',
+        
         'views/finn_transaction.xml',
         
         'views/payment_part.xml',

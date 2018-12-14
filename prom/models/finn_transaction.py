@@ -19,43 +19,152 @@ class finn_transaction(models.Model):
         ], default='income'
     )
 
-    obligation_ids = fields.Many2many(
-        comodel_name="prom.obligation"
+    payment_doc_num = fields.Char()
+    payment_doc_date = fields.Datetime()
+    
+    customer_company_id = fields.Many2one(
+        comodel_name="res.company",
+    )
+    contractor_company_id = fields.Many2one(
+        comodel_name="res.company",
     )
 
-    fin_spec = fields.Char()
-    fin_number = fields.Integer()
-    fin_price = fields.Float()
+    obligation_type_id= fields.Many2one(
+        comodel_name="prom.obligation_type"
+    )
 
-    fin_price_currency_hand  = fields.Float()
     fin_price_mode = fields.Selection(
         selection=[
                 ('hand', 'hand'),
                 ('compute', 'compute'),
-        ],
+        ], default="hand"
     )
     passport_id = fields.Many2one(
         comodel_name="prom.passport"
     )
-    
-    # fin_price_currency = fields.Float(compute="compute_fin_price_currency", store=True)
-    # @api.onchange('')
-    # @api.depends('')
-    # def compute_fin_price_currency(self):
-    #     for r in self:
-    #         fin_price 
-    #         r.fin_price_currency = False
 
-    fin_sum = fields.Float(compute="compute_fin_sum", store=True)
+    specification_number  = fields.Text(related="passport_id.specification_number")
+    name = fields.Char(related="passport_id.project_id.name") 
+
+    transfer_date  = fields.Date()
+    invoice_for_payment = fields.Char()
+    purpose_of_payment  = fields.Text()
+    comment_for_payment  = fields.Text()
+    payment_amount  = fields.Integer()
+    payment_amount_rub = fields.Integer(compute="compute_payment_amount_rub",store=True)
     
-    @api.onchange('fin_price','fin_number')
-    @api.depends('fin_price','fin_number')
-    def compute_fin_sum(self):
+    @api.onchange("payment_amount","transfer_date","passport_id")
+    @api.depends("payment_amount","transfer_date","passport_id")
+    def compute_payment_amount_rub(self):
         for r in self:
-            r.fin_sum = r.fin_price + r.fin_number
+            if r.transfer_date and r.passport_id  and r.payment_amount:
+                if not r.passport_id.currency_id:
+                    raise UserError(u"Не выбрана валюта договора")
+                r.payment_amount_rub = self.env["prom.passport"].toRub(r.transfer_date,r.passport_id.currency_id,r.payment_amount)
 
-    fin_sum_currency = fields.Float()
+    nds_percent = fields.Float(related="passport_id.project_id.contractor_company_id.nds")
+    nds_sum = fields.Float(compute="compute_nds_sum",store=True)
+    nds_sum_rub  = fields.Float(compute="compute_nds_sum_rub",store=True)
+
+    @api.onchange("payment_amount","nds_percent")
+    @api.depends("payment_amount","nds_percent")
+    def compute_nds_sum(self):
+        for r in self:
+            if r.payment_amount:
+                r.nds_sum = r.payment_amount * (r.nds_percent/100)
+
+    @api.onchange("payment_amount_rub","nds_percent")
+    @api.depends("payment_amount_rub","nds_percent")
+    def compute_nds_sum_rub(self):
+        for r in self:
+            if r.payment_amount_rub:
+                r.nds_sum_rub = r.payment_amount_rub * (r.nds_percent/100)
+
+    @api.model
+    def api_create_line(self, data):
+        
+        from json import dumps, load
+        from datetime import datetime
+        try:
+            print "api_create_line", "--------- data", data
+            CompanyINN = self.api_find_company(data.get("CompanyINN"),"CompanyINN")
+            AvCounterpartyINN = self.api_find_company(data.get("AvCounterpartyINN"),"AvCounterpartyINN")
 
 
-    
-    # fin_sum_currency = fields.Float(compute="compute_fin_sum_currency", store=True)
+            passport_id = self.env["prom.passport"].search([
+                ('contract_number','=',data.get("AvNumberContract")),
+                ('specification_number','=',data.get("AvNumberSpecification"))
+            ])
+
+            if not passport_id:
+                raise Exception({"status":"error", "message" : "Cant find passport id!","code":602}) 
+            if len(passport_id)>1:
+                raise Exception({"status":"error", "message" : "Passport is not one!","code":603}) 
+
+           
+            if data.get("AvTypeTransactionContract") not in ['income','expenses']:
+                raise Exception({"status":"error", "message" : "Unknown AvTypeTransactionContract! Can be income or expenses","code":604}) 
+
+            
+            obligation_type_id = self.env["prom.obligation_type"].search([('name','=',data.get("AvCostItemContract"))])
+            if not obligation_type_id:
+                raise Exception({"status":"error", "message" : "Cant find obligation type!","code":605}) 
+            if len(obligation_type_id)>1:
+                raise Exception({"status":"error", "message" : "Obligation type is not one!","code":606}) 
+
+
+            transfer_date = fields.Datetime.to_string(datetime.strptime(data.get("AvDateContract"), '%d.%m.%Y'))
+
+            row_fields = {
+                    "AvTypeTransactionContract":"fin_type",
+                    "AvNumberDocument":"payment_doc_num",
+                    "AvNumberDate":"payment_doc_date",
+                    "AvSumContract":"payment_amount",
+                    "AvNumberPaymentContract ":"invoice_for_payment",
+                    "AvPurposePaymentContract":"purpose_of_payment",
+                    "AvCommentContract":"comment_for_payment",
+                }
+      
+            o = {}
+            for f in row_fields:
+                o[row_fields[f]] = data.get(f,False)
+
+            o["customer_company_id"] = CompanyINN
+            o["contractor_company_id"] = AvCounterpartyINN
+            o["passport_id"] = passport_id.id
+            o["obligation_type_id"] = obligation_type_id.id
+            o["fin_price_mode"] = "compute"
+            o["transfer_date"] = transfer_date
+
+            print "--------------- will create new fin_tranzaction ",o
+
+            res = self.create(o)
+            # "AvProjectContract",  ???????????
+            # "AvIDProjectContract ", ???????????
+
+            # "AvDateContract",
+
+
+            # "AvTypeTransactionContract",
+            # "AvNumberDocument",
+            # "AvNumberDate",
+            # "AvSumContract",
+            # "AvVATContract",
+            # "AvSumVATContract",
+            # "AvCostItemContract",
+            # "AvNumberPaymentContract ",
+            # "AvPurposePaymentContract",
+            # "AvCommentContract",
+
+            return {"status":"successful","recordId":res.id}
+        except Exception as ex:
+            return ex.message
+            
+         
+
+    @api.model
+    def api_find_company(self,inn,field):
+        res = self.env["res.company"].search([('vat','=',inn)])
+        if not res:
+            raise Exception({"status":"error", "message" : "Company with inn " + str(inn) + " not found.","code":601,"field":field}) 
+        return res.id

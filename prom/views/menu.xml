@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_prom" name="prom" sequence="0"/>
-    <menuitem id="menu_project" name="project" parent="menu_prom" action="project_action_form" sequence="10"/>
+    <menuitem id="menu_prom" name="Прочее" sequence="50"/>
+
+    <menuitem id="menu_project" name="Проекты" action="project_action_form" sequence="10"/>
+    <menuitem id="menu_company_o" name="Компании" action="base.action_res_company_form" sequence="20"/>
+    <menuitem id="menu_currency_o" name="Валюты" action="base.action_currency_form_company" sequence="30"/>
+    <menuitem id="menu_obligation_type" name="Типы товаров и услуг" action="obligation_type_action_form" sequence="40"/>
+
     <!-- <menuitem id="menu_project_new" name="project" parent="menu_prom" action="project_action_form" sequence="11"/> -->
 
     <menuitem id="menu_passport" name="passport" parent="menu_prom" action="passport_action_form" sequence="20"/>

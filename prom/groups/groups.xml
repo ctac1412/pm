@@ -19,8 +19,8 @@
       <field name="category_id" ref="module_prom_test"/>
     </record>
 
-    <record id="group_support" model="res.groups">
-      <field name="name">Support</field>
+    <record id="group_support_department" model="res.groups">
+      <field name="name">Support_department</field>
       <field name="category_id" ref="module_prom_test"/>
     </record>
       <record id="group_logistics_service" model="res.groups">
@@ -54,7 +54,7 @@
     
     <!-- group_manager - Менеджер  -->
     <!-- group_commercial_department - Коммерческий отдел  -->
-    <!-- group_support - Техническая служба  -->
+    <!-- group_support_department - Техническая служба  -->
     <!-- group_logistics_service - Служба логистики -->
     <!-- group_chief_accountant - Главный бухгалтер  -->
     <!-- group_financial_director - Финансовый директор  -->

@@ -12,7 +12,7 @@ import logging
 class validate_passport(models.Model):
     _name = 'prom.validate_passport'
     _rec_name = "validate_user"
-
+    
     group_name = fields.Char()
     is_validate = fields.Boolean(defult=False)
     validate_time = fields.Datetime()
@@ -31,9 +31,49 @@ class validate_passport(models.Model):
 
 class passport(models.Model):
     _name = 'prom.passport'
-    _description = u'Паспорт сделки/ passport'
+    _description = u'Passport'
     _inherit = ['mail.thread']
+    _rec_name = "compute_name"
+
+    compute_name = fields.Char(compute="_compute_name")
+    
+    @api.onchange('specification_number','contract_number')
+    @api.depends('specification_number','contract_number')
+    def _compute_name(self):
+        for r in self:
+            r.compute_name = (r.specification_number or "") + " / " + (r.contract_number or "")
+
     is_actual   = fields.Boolean(default=True)
+
+    @api.multi 
+    def open_one2many_line(self):
+        return {
+                         'type': 'ir.actions.act_window',
+                         'name': 'Model Title',
+                         'view_type': 'form',
+                         'view_mode': 'form',
+                         'res_model': self._name,
+                         'res_id': self.id,
+                         'target': 'current',
+                    }
+
+    parent_passport_id = fields.Many2one(comodel_name="prom.passport")
+    child_passport_id = fields.Many2one(comodel_name="prom.passport")
+
+    @api.multi
+    def add_sub_passport(self):
+        for r in self:
+            child = r.copy({
+                "parent_passport_id":r.id
+            })
+            
+            r.child_passport_id = child.id
+            r.is_actual = False
+            # self.create({
+            #     "parent_passport_id":r.id,
+            #     "is_actual":True,
+            #     "project_id":r.project_id
+            # })
 
     group_commercial_department_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
     group_support_department_v_p_id = fields.Many2one(comodel_name="prom.validate_passport")
@@ -149,27 +189,33 @@ class passport(models.Model):
     def set_state_kp_cancel(self):
         for r in self:
             r.state = 'kp_cancel'
+            
     @api.multi
     def set_state_content_negotiation(self):
         for r in self:
             r.create_validate()
             r.state = 'content_negotiation'
+
     @api.multi
     def set_state_content_agreed(self):
         for r in self:
             r.state = 'content_agreed'
+
     @api.multi
     def set_state_contract_sign(self):
         for r in self:
             r.state = 'contract_sign'
+
     @api.multi
     def set_state_contract_cancel(self):
         for r in self:
             r.state = 'contract_cancel'
+
     @api.multi
     def set_state_contract_done(self):
         for r in self:
             r.state = 'contract_done'
+
     @api.multi
     def set_state_dop_contract(self):
         for r in self:
@@ -179,10 +225,12 @@ class passport(models.Model):
 
     @api.model
     def actualCurse(self,date,cur_id=-1):
+        if not cur_id or not date : return False
         if int(cur_id) == -1 or cur_id.name == "RUB":
             return 1
         res = self.env['res.currency.rate'].search([('currency_id', '=', cur_id.id),('name', '<=', date)], limit=1, order='name DESC')
         if not res:
+            print "---",cur_id,date
             raise UserError(_("Cant find current rate:") + str(cur_id.name) + " to date - " + str(date))
         return res.rate
     
@@ -222,13 +270,29 @@ class passport(models.Model):
     project_id = fields.Many2one(
     comodel_name="prom.project",
     )
-    specification_number  = fields.Text()
+    parent_project_id = fields.Many2one(
+        related="project_id.parent_project_id",store=True
+    )
+    specification_number  = fields.Text(required=True)
 
+
+    def _product_domain(self):
+        if self and len(self) == 1:
+            domain = []
+            if self.project_id:
+                domain.append(('project_id','=',self.project_id.id))
+                if self.project_id.parent_project_id:
+                    domain.append(('parent_project_id','=',self.project_id.parent_project_id.id))
+            print "-------------", domain
+            return domain
+        else:
+            return []
 
     product_ids = fields.One2many(
         comodel_name="prom.product",
-        inverse_name="passport_id",
+        inverse_name="passport_id"
     )
+
 
     # obligation_ids = fields.Many2many(
     #     comodel_name="prom.obligation"
@@ -241,17 +305,18 @@ class passport(models.Model):
 
 
     # Contract
-    contract_number = fields.Char()
+    contract_number = fields.Char(required=True)
     date_of_signing  = fields.Date()
     currency_id  = fields.Many2one(
-        comodel_name="res.currency"
+        comodel_name="res.currency",
+        required=True
     )
 
     calculate_currency_id = fields.Many2one(
         comodel_name="res.currency"
     )
 
-    currency_of_signing = fields.Float(compute='compute_currency_of_signing',store=True)
+    currency_of_signing = fields.Float(compute='compute_currency_of_signing',store=True,required=True)
 
     @api.onchange("date_of_signing","currency_id")
     @api.depends("date_of_signing","currency_id")
@@ -423,7 +488,7 @@ class passport(models.Model):
     avance_terms_of_payment = fields.Char()
     avance_payment_date = fields.Date()
     
-    avance_contract_part_cur = fields.Float       (compute="onchange_avance_contract_part_cur",store=True)
+    avance_contract_part_cur = fields.Float(compute="onchange_avance_contract_part_cur",store=True)
     avance_summ_cur_rub_date_podpis = fields.Float(compute="onchange_avance_contract_part_cur",store=True)
     avance_summmode = fields.Selection(
     selection=[
@@ -451,8 +516,10 @@ class passport(models.Model):
     @api.depends('avance_summ_cur_contract','price_currency_id_date_sign')
     def onchange_avance_summ_cur_contract(self):
         for r in self:                 
-            if r.avance_summmode == 'price' and r.avance_summ_cur_contract:
+            if r.avance_summmode == 'price' and r.avance_summ_cur_contract and price_currency_id_date_sign:
                 r.avance_contract_part_pr =  r.avance_summ_cur_contract * 100 /   r.price_currency_id_date_sign
+            else: 
+                r.avance_contract_part_pr = 0
 
     @api.onchange('avance_contract_part_pr','price_currency_id_date_sign')
     @api.depends('avance_contract_part_pr','price_currency_id_date_sign')

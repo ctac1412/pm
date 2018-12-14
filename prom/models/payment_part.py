@@ -11,7 +11,7 @@ import logging
 
 class payment_part(models.Model):
     _name = 'prom.payment_part'
-    _description = u'Платежная часть / payment_part'
+    _description = u'Payment_part'
     
     passport_id = fields.Many2one(
         comodel_name="prom.passport"

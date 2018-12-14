@@ -23,7 +23,7 @@
         <field name="name">prom.project.form</field>
         <field name="model">prom.project</field>
         <field name="arch" type="xml">
-            <form string="project" create="false">
+            <form string="project">
                 <header>
                     <field name="state" widget="statusbar"/>
                 </header>
@@ -31,21 +31,33 @@
 
                     <group>
                         <field name="name"/>
-                        <field name="manager_user_id" context="{'default'}"/>
+                        <field name="manager_user_id"/>
                         <field name="customer_company_id"/>
                         <field name="contractor_company_id"/>
                         <field name="parent_project_id" readonly="1"/>
                         <field name="kind_podryad" readonly="1"/>
                     </group>
-                    <group string="ед.ч.">
-                        <field name="passport_ids" nolabel="1" context="{'tree_view_ref' : 'prom.passport_view_tree_min'}" />
+
+                    <div class="o_row">
+                        <h2>Паспорт сделки
+                            <button name="add_passport" string="Добавить паспорт" class="oe_highlight oe_edit_only" type="object" attrs="{'invisible': [('passport_ids','!=',[])]}"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <field name="passport_ids" nolabel="1" context="{'create':False,'tree_view_ref' : 'prom.passport_view_tree_min'}" />
+                    </group>
+                    <div class="o_row">
+                        <h2>Подрядчики
+                        <button type="object" string="Добавить подрядчика" name="add_sub_project_ids" class='oe_highlight oe_edit_only' />
+                          
+                        </h2>
+                    </div>
+                    <group >
+                        <field name="sub_project_ids" nolabel="1" context="{'create':False,'default_parent_project_id':id}" domain="[('id','=','-1')" />
+                        
                     </group>
 
-                    <group string="Подрядчики.">
-                        <field name="sub_project_ids" options="{'no_create': True}" nolabel="1" context="{'default_parent_project_id':id}" domain="[('id','=','-1')" />
-                    </group>
                     
-                    <button type="object" string="add_sub_project_ids" name="add_sub_project_ids" class='btn btn-primary btn-sm o_list_button_add' />
                 </sheet>
                 <sheet>
                     <div class="oe_chatter">
@@ -61,7 +73,7 @@
         <field name="name">prom.project.tree</field>
         <field name="model">prom.project</field>
         <field name="arch" type="xml">
-            <tree string="project" create="false">
+            <tree string="project">
                 <field name="name"/>
                 <field name="manager_user_id"/>
 
@@ -72,7 +84,7 @@
                 <field name="parent_project_id"/>
                 <field name="state"/>
                 <field name="passport_ids"/>
-
+                <button name="open_one2many_line" type="object" class="oe_highlight" string="Открыть" />
             </tree>
         </field>
     </record>
