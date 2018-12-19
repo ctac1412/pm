@@ -12,6 +12,7 @@
                         <field name="name"/>
 
                         <field name="obligation_type_id"/>
+                        <field name="obligation_type_money_id"/>
                         <field name="obligation_date"/>
                     </group>
                     <group >
@@ -43,6 +44,7 @@
                 <field name="unit"/>
                 <field name="count"/>
                 <field name="obligation_type_id"/>
+                <field name="obligation_type_money_id"/>
                 <field name="compute_mode"/>
             </tree>
         </field>

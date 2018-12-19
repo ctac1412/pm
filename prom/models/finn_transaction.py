@@ -32,6 +32,9 @@ class finn_transaction(models.Model):
     obligation_type_id= fields.Many2one(
         comodel_name="prom.obligation_type"
     )
+    obligation_type_money_id= fields.Many2one(
+        comodel_name="prom.obligation_type_money"
+    )
 
     fin_price_mode = fields.Selection(
         selection=[

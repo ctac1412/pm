@@ -10,7 +10,7 @@
                   
                         <group>
                             <field name="fin_type"/>
-                            <field name="fin_price_mode"/>
+                            <field name="fin_price_mode" readonly="1"/>
                             <field name="payment_doc_num"/>
                             <field name="payment_doc_date"/>
                             <field name="customer_company_id"/>
@@ -35,6 +35,7 @@
                    
                     <group string="Тип товара и услуги">
                         <field name="obligation_type_id"/>
+                        <field name="obligation_type_money_id"/>
                     </group>
 
                   
@@ -55,6 +56,7 @@
             <tree string="finn_transaction">
                 <field name="fin_type" />
                 <field name="obligation_type_id" />
+                <field name="obligation_type_money_id"/>
                 <field name="fin_price_mode" />
                 <field name="passport_id" />
                 <field name="specification_number" />
@@ -79,6 +81,7 @@
             <tree string="finn_transaction">
                 <field name="fin_type" />
                 <field name="obligation_type_id" />
+                <field name="obligation_type_money_id"/>
                 <field name="fin_price_mode" />
                 <field name="name" />
                 <field name="transfer_date" />

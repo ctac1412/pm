@@ -11,8 +11,10 @@
                     
 
                         <field name="product_item_id"/>
-                        <field name="project_id"/>
-                        <field name="parent_project_id"/>
+                        <!-- <field name="project_id"/> -->
+                        <!-- <field name="parent_project_id"/> -->
+                        <field name="obligation_type_id"/>
+                        <field name="obligation_type_money_id"/>
                         <field name="passport_id" attrs="{'readonly':[('passport_id','!=','False')]}"/>
                         <field name="currency_id" readonly="1"/>
                     
@@ -37,10 +39,12 @@
         <field name="arch" type="xml">
             <tree string="product">
             <field name="product_item_id"/>
-                <field name="project_id"/>
-                <field name="parent_project_id"/>
+                <!-- <field name="project_id"/> -->
+                <!-- <field name="parent_project_id"/> -->
+                <field name="obligation_type_id"/>
+                <field name="obligation_type_money_id"/>
                 <field name="count"/>
-                <!-- <field name="currency_id"/> -->
+                <field name="currency_id"/>
                 <field name="price"/>
             </tree>
         </field>

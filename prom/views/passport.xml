@@ -20,9 +20,12 @@
 
                     <field name="state" widget="statusbar" statusbar_visible="" />
                 </header>
+                <field name="parent_project_id" invisible="1"/>
                 <sheet>
-
+                        <button string="update_payment_month_ids" name="update_payment_month_ids" type="object" class="btn" />
                     <group string="">
+
+                        <field name="payment_month_ids"/>
                         <field name="project_id" attrs="{'readonly':[('project_id','!=',False)]}"/>
                         <field name="parent_passport_id" readonly="1"/>
                         
@@ -33,10 +36,12 @@
                         </div>
                         
                         <field name="is_actual"/>
+                        <field name="is_export"/>
                         <field name="kp_cancel_reason" attrs="{'invisible':[('state','not in',['kp_cancel'])]}"/>
                         <field name="contract_cancel_reason" attrs="{'invisible':[('state','not in',['contract_cancel'])]}"/>
 
                         <field name="specification_number"/>
+                        <field name="term_of_delivery"/>
                         <field name="attachment_ids" widget="many2many_binary" string="Attach a file"/>
                         <!-- <field name="validate_passport_ids">
                             <tree>
@@ -132,7 +137,7 @@
                     <group >
                         <group>
                             <field name="currency_id"/>
-                            <field name="date_of_signing" attrs="{'invisible':[('state','not in',['content_agreed'])]}"/>
+                            <field name="date_of_signing" />
                         </group>
                         <group>
                             <field name="calculate_currency_id"/>
@@ -159,8 +164,9 @@
                 <sheet>
                     <group string='Товары и услуги'>
                         
-                        <field name="parent_project_id" invisible="1"/>
-                        <field name="product_ids" nolabel="1" domain="['|',('project_id', '=',project_id),('parent_project_id', '=',parent_project_id)]" widget="many2many"  context="{'default_passport_id':id}"/>
+                        
+                        <field name="product_ids" nolabel="1" context="{'default_passport_id':id}"/>
+                        <!-- <field name="product_ids" nolabel="1" domain="('project_id', '=',project_id),('project_id', '=',parent_project_id)]"  context="{'default_passport_id':id}"/> -->
                     </group>
                     <group string='Обязательства'>
                         <field name="obligation_ids" widget="one2many_list" nolabel="1"/>
@@ -189,18 +195,20 @@
                 </sheet>
                 <sheet groups="prom.group_financial_director,prom.group_chief_accountant">
                     <group string='Расчеты по договору'>
+                               
+                               <field name="main_summmode"/>
                     </group>
                     <notebook>
                         <page string="Аванс">
                             <group>
-                                <field name="avance_summmode"/>
+                                <!-- <field name="avance_summmode"/> -->
                             </group>
-                            <group attrs="{'invisible': [('avance_summmode','=',False)]}">
+                            <group attrs="{'invisible': [('main_summmode','=',False)]}">
                                 <group string="%">
-                                    <field name="avance_contract_part_pr" attrs="{'readonly': [('avance_summmode','=','price')]}"/>
+                                    <field name="avance_contract_part_pr" />
                                 </group>
                                 <group string="$">
-                                    <field name="avance_summ_cur_contract" attrs="{'readonly': [('avance_summmode','=','persent')]}"/>
+                                    <field name="avance_summ_cur_contract" />
                                     <field name="avance_summ_cur_rub_date_podpis"/>
                                     <field name="avance_contract_part_cur"/>
                                 </group>
@@ -208,19 +216,20 @@
                                     <field name="avance_payment_delay"/>
                                     <field name="avance_terms_of_payment"/>
                                     <field name="avance_payment_date"/>
+                                    <field name="avance_date_of_payment"/>
                                 </group>
                             </group>
                         </page>
                         <page string="Уведомление">
                             <group>
-                                <field name="message_summmode"/>
+                                <!-- <field name="message_summmode"/> -->
                             </group>
-                            <group attrs="{'invisible': [('message_summmode','=',False)]}">
+                            <group attrs="{'invisible': [('main_summmode','=',False)]}">
                                 <group string="%">
-                                    <field name="message_contract_part_pr" attrs="{'readonly': [('message_summmode','=','price')]}"/>
+                                    <field name="message_contract_part_pr"/>
                                 </group>
                                 <group string="$">
-                                    <field name="message_summ_cur_contract" attrs="{'readonly': [('message_summmode','=','persent')]}"/>
+                                    <field name="message_summ_cur_contract"/>
                                     <field name="message_summ_cur_rub_date_podpis"/>
                                     <field name="message_contract_part_cur"/>
                                 </group>
@@ -228,19 +237,20 @@
                                     <field name="message_payment_delay"/>
                                     <field name="message_terms_of_payment"/>
                                     <field name="message_payment_date"/>
+                                    <field name="message_date_of_payment"/>
                                 </group>
                             </group>
                         </page>
                         <page string="Конец ПНР">
                             <group>
-                                <field name="endpnr_summmode"/>
+                                <!-- <field name="endpnr_summmode"/> -->
                             </group>
-                            <group attrs="{'invisible': [('endpnr_summmode','=',False)]}">
+                            <group attrs="{'invisible': [('main_summmode','=',False)]}">
                                 <group string="%">
-                                    <field name="endpnr_contract_part_pr" attrs="{'readonly': [('endpnr_summmode','=','price')]}"/>
+                                    <field name="endpnr_contract_part_pr"/>
                                 </group>
                                 <group string="$">
-                                    <field name="endpnr_summ_cur_contract" attrs="{'readonly': [('endpnr_summmode','=','persent')]}"/>
+                                    <field name="endpnr_summ_cur_contract"/>
                                     <field name="endpnr_summ_cur_rub_date_podpis"/>
                                     <field name="endpnr_contract_part_cur"/>
                                 </group>
@@ -248,19 +258,20 @@
                                     <field name="endpnr_payment_delay"/>
                                     <field name="endpnr_terms_of_payment"/>
                                     <field name="endpnr_payment_date"/>
+                                    <field name="endpnr_date_of_payment"/>
                                 </group>
                             </group>
                         </page>
                         <page string="Фактический">
                             <group>
-                                <field name="fact_summmode"/>
+                                <!-- <field name="fact_summmode"/> -->
                             </group>
-                            <group attrs="{'invisible': [('fact_summmode','=',False)]}">
+                            <group attrs="{'invisible': [('main_summmode','=',False)]}">
                                 <group string="%">
-                                    <field name="fact_contract_part_pr" attrs="{'readonly': [('fact_summmode','=','price')]}"/>
+                                    <field name="fact_contract_part_pr"/>
                                 </group>
                                 <group string="$">
-                                    <field name="fact_summ_cur_contract" attrs="{'readonly': [('fact_summmode','=','persent')]}"/>
+                                    <field name="fact_summ_cur_contract"/>
                                     <field name="fact_summ_cur_rub_date_podpis"/>
                                     <field name="fact_contract_part_cur"/>
                                 </group>
@@ -268,6 +279,7 @@
                                     <field name="fact_payment_delay"/>
                                     <field name="fact_terms_of_payment"/>
                                     <field name="fact_payment_date"/>
+                                    <field name="fact_date_of_payment"/>
                                 </group>
                             </group>
                         </page>
