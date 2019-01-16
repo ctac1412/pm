@@ -8,6 +8,8 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
 import logging
+_logger = logging.getLogger("finn_transaction")
+
 
 class finn_transaction(models.Model):
     _name = 'prom.finn_transaction'
@@ -53,8 +55,8 @@ class finn_transaction(models.Model):
     invoice_for_payment = fields.Char()
     purpose_of_payment  = fields.Text()
     comment_for_payment  = fields.Text()
-    payment_amount  = fields.Integer()
-    payment_amount_rub = fields.Integer(compute="compute_payment_amount_rub",store=True)
+    payment_amount  = fields.Float()
+    payment_amount_rub = fields.Float(compute="compute_payment_amount_rub",store=True)
     
     @api.onchange("payment_amount","transfer_date","passport_id")
     @api.depends("payment_amount","transfer_date","passport_id")
@@ -85,7 +87,6 @@ class finn_transaction(models.Model):
 
     @api.model
     def api_create_line(self, data):
-        
         from json import dumps, load
         from datetime import datetime
         try:
@@ -100,7 +101,9 @@ class finn_transaction(models.Model):
             ])
 
             if not passport_id:
-                raise Exception({"status":"error", "message" : "Cant find passport id!","code":602}) 
+                raise Exception({"status":"error", "message" : "Cant find passport id!","code":602,"use_fields":[
+                    {"contract_number":data.get("AvNumberContract"),'specification_number':data.get("AvNumberSpecification")}
+                ]}) 
             if len(passport_id)>1:
                 raise Exception({"status":"error", "message" : "Passport is not one!","code":603}) 
 
@@ -123,11 +126,11 @@ class finn_transaction(models.Model):
                     "AvNumberDocument":"payment_doc_num",
                     "AvNumberDate":"payment_doc_date",
                     "AvSumContract":"payment_amount",
-                    "AvNumberPaymentContract ":"invoice_for_payment",
+                    "AvNumberPaymentContract":"invoice_for_payment",
+                    
                     "AvPurposePaymentContract":"purpose_of_payment",
                     "AvCommentContract":"comment_for_payment",
                 }
-      
             o = {}
             for f in row_fields:
                 o[row_fields[f]] = data.get(f,False)
@@ -140,7 +143,8 @@ class finn_transaction(models.Model):
             o["transfer_date"] = transfer_date
 
             print "--------------- will create new fin_tranzaction ",o
-
+            _logger.info("--------------- will create new fin_tranzaction ")
+            _logger.info(o)
             res = self.create(o)
             # "AvProjectContract",  ???????????
             # "AvIDProjectContract ", ???????????
@@ -169,5 +173,8 @@ class finn_transaction(models.Model):
     def api_find_company(self,inn,field):
         res = self.env["res.company"].search([('vat','=',inn)])
         if not res:
-            raise Exception({"status":"error", "message" : "Company with inn " + str(inn) + " not found.","code":601,"field":field}) 
+            raise Exception({"status":"error", "message" : "Company with inn " + str(inn) + " not found.","code":601,"field":field})
+        if len(res) > 1:
+            raise Exception({"status":"error", "message" : "It is 2 company with this inn " + str(inn) + ".","code":607,"field":field})
+
         return res.id

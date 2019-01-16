@@ -6,15 +6,19 @@ from json import dumps
 #from flask.ext.jsonpify import jsonify
 import xmlrpclib
 import os
-
+import logging
+ 
+# add filemode="w" to overwrite
+logging.basicConfig(filename="odoo-api.log", level=logging.INFO)
+ 
 # dict = {'Empty default list for ProdNd!': u'Пустой список НД для выбранного НД продукта!'}
 #
 # def _(t):
 #     return dict.get(t, t)
 
 srv = 'http://localhost:8069'
-db = 'pm'
-login = 'dom333122@yandex.ru'
+db = 'prom'
+login = '1@1.ru'
 pwd = '1'
 key =  '51cd18aaa30ca5d1397581f9fed6a747' # md5 for ts '1517433199'
 
@@ -37,9 +41,12 @@ print ('uid: %s' % str(uid))
 app = Flask(__name__)
 api = Api(app)
 
-
+def return_error(ob):
+    logging.error(ob)
+    return ob
+    
 def required_fields(data):
-    print "data:",data
+    logging.debug(data)
     fields = (
         "CompanyINN",
         "AvCounterpartyINN",
@@ -68,24 +75,21 @@ class finn_transaction(Resource):
         global uid
         global pwd
         global key
-
         try:
-            
-
+            logging.debug("Finn_transaction come!")
             data = request.form
-            
             if not data :
-                data = request.get_json() 
-
+                data = request.get_json()
             if not data:
-                return {"status":"error", "message" : str("I cant read your data."),"code":501}, 200
+                return return_error({"status":"error", "message" : str("I cant read your data."),"code":501}), 200
 
             if data.get('key') != key :
-                return {"status":"error", "message" : str("Wrong key!"),"code":502}, 200
+                return return_error({"status":"error", "message" : str("Wrong key!"),"code":502}), 200
 
             req = required_fields(data)
             if req:
-                return {"status":"error", "message" : str("Not all required fields is come!"), "fields":req ,"code":503}, 200
+                logging.debug(data)
+                return return_error({"status":"error", "message" : str("Not all required fields is come!"), "fields":req ,"code":503}), 200
 
             del data['key'] # remove key
             api = xmlrpclib.ServerProxy('%s/xmlrpc/2/object' % srv)
@@ -94,10 +98,13 @@ class finn_transaction(Resource):
             # print res
             # if res.get('error'): raise Exception(res['error'])
             if res == "":
-                return {"status":"error", "message" : str("record is create, but in server was deep error! Call to administrator"),"code":504}, 200
+                logging.debug(data)
+                return return_error({"status":"error", "message" : str("record is create, but in server was deep error! Call to administrator"),"code":504}), 200
+            logging.info(res)
             return res # Fetches first column that is Employee ID
         except Exception as ex:
-            return {"status":"error", "message" : str(ex)}, 500
+            logging.debug(data)
+            return return_error({"status":"error", "message" : str(ex)}), 500
 
 # class Tracks(Resource):
 #     def get(self):

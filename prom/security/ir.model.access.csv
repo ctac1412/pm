@@ -1,11 +1,14 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_prom_product,access_prom_product,model_prom_product,base.group_user,1,1,1,1
+access_prom_product_item,access_prom_product_item,model_prom_product_item,base.group_user,1,1,1,1
 access_prom_settlements,access_prom_settlements,model_prom_settlements,base.group_user,1,1,1,1
 access_prom_project,access_prom_project,model_prom_project,base.group_user,1,1,1,1
+access_prom_obligation,access_prom_obligation,model_prom_obligation,base.group_user,1,1,1,1
 access_prom_obligation_type,access_prom_obligation_type,model_prom_obligation_type,base.group_user,1,1,1,1
+access_prom_obligation_type_money,access_prom_obligation_type_money,model_prom_obligation_type_money,base.group_user,1,1,1,1
 access_prom_currency_rate,access_prom_currency_rate,model_prom_currency_rate,base.group_user,1,1,1,1
 access_prom_finn_transaction,access_prom_finn_transaction,model_prom_finn_transaction,base.group_user,1,1,1,1
 access_prom_payment_part,access_prom_payment_part,model_prom_payment_part,base.group_user,1,1,1,1
-access_prom_product_item,access_prom_product_item,model_prom_product_item,base.group_user,1,1,1,1
-access_prom_obligation,access_prom_obligation,model_prom_obligation,base.group_user,1,1,1,1
 access_prom_passport,access_prom_passport,model_prom_passport,base.group_user,1,1,1,1
+access_prom_payment_month,access_prom_payment_month,model_prom_payment_month,base.group_user,1,1,1,1
+access_prom_validate_passport,access_prom_validate_passport,model_prom_validate_passport,base.group_user,1,1,1,1

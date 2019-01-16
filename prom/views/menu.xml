@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_prom" name="Прочее" sequence="50"/>
-
-    <menuitem id="menu_project" name="Проекты" action="project_action_form" sequence="10"/>
-    <menuitem id="menu_company_o" name="Компании" action="base.action_res_company_form" sequence="20"/>
-    <menuitem id="menu_currency_o" name="Валюты" action="base.action_currency_form_company" sequence="30"/>
-    <menuitem id="menu_obligation_type" name="Типы товаров и услуг" action="obligation_type_action_form" sequence="40"/>
-
-    <!-- <menuitem id="menu_project_new" name="project" parent="menu_prom" action="project_action_form" sequence="11"/> -->
-
-    <menuitem id="menu_passport" name="passport" parent="menu_prom" action="passport_action_form" sequence="20"/>
-    <menuitem id="menu_product" name="product" parent="menu_prom" action="product_action_form" sequence="30"/>
-    <menuitem id="menu_settlements" name="settlements" parent="menu_prom" action="settlements_action_form" sequence="40"/>
-    <menuitem id="menu_part_action" name="part_action" parent="menu_prom" action="payment_part_action_form" sequence="50"/>
+	<menuitem id="menu_project_root" name="Проекты" sequence="10"/>
+	<menuitem id="menu_project" name="Проекты" parent = "menu_project_root" action="project_action_form" sequence="10"/>
+	<menuitem id="menu_passport" name="Паспорта сделок" parent = "menu_project_root" action="passport_action_form" sequence="20"/>
+	<menuitem id="menu_product_root" name="Типы товаров и услуг" sequence="20"/>
+	<menuitem id="menu_obligation_type" parent="menu_product_root" name="obligation_type" action="obligation_type_action_form" sequence="10"/>
+	<menuitem id="menu_obligation_type_money" parent="menu_product_root" name="obligation_type_money" action="obligation_type_money_action_form" sequence="20"/>
+	<menuitem id="menu_product_item" name="product_item" parent="menu_product_root" action="product_item_action_form" sequence="30"/>
+	<menuitem id="menu_company_o" name="Компании" action="base.action_res_company_form" sequence="20"/>
+	<menuitem id="menu_currency_o" name="Валюты" action="base.action_currency_form_company" sequence="30"/>
 </odoo>

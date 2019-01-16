@@ -10,6 +10,146 @@ from datetime import date, datetime,timedelta
 import calendar
 import logging
 
+# class payment_quarter(models.Model):
+#         _name = 'prom.payment_quarter'
+#         _sql_constraints = [
+#         ('quarter_uniq', 'unique(year,name)',
+#         ('There is already year and month record.'))
+#         ]
+#         name = fields.Integer()
+#         year = fields.Integer()
+
+class payment_month(models.Model):
+        _name = 'prom.payment_month'
+        _rec_name="short_name"
+        _sql_constraints = [
+        ('date_uniq', 'unique(year,month)',
+        ('There is already year and month record.'))
+        ]
+        short_name = fields.Char(compute="compute_short_name",store=True)
+        # payment_quarter_id = fields.Many2one(
+        #     comodel_name="prom.payment_quarter",
+        #     compute="compute_payment_quarter_id",store=True
+        # )
+        payment_quarter = fields.Integer(compute="compute_payment_quarter_id",store=True)
+        
+        @api.model
+        def quarter_months(self,quarter):
+            return {
+                1:[1,2,3],
+                2:[4,5,6],
+                3:[7,8,9],
+                4:[10,11,12]
+            }[quarter]
+
+            # if quarter == 1: return [1,2,3]
+            # if quarter == 2: return [4,5,6]
+            # if quarter == 3: return [7,8,9]
+            # if quarter == 4: return [10,11,12]
+
+        @api.onchange('year','month')
+        @api.depends('year','month')
+        def compute_payment_quarter_id(self):
+            for r in self:
+                if r.month:
+                    if r.month in [1,2,3]:
+                        r.payment_quarter = 1
+                    if r.month in [4,5,6]:
+                        r.payment_quarter = 2
+                    if r.month in [7,8,9]:
+                        r.payment_quarter = 3
+                    if r.month in [10,11,12]:
+                        r.payment_quarter = 4
+
+        @api.onchange('year','month')
+        @api.depends('year','month')
+        def compute_short_name(self):
+            for r in self:
+                if r.year and r.month:
+                    r.short_name = str(r.month) + "." + str(r.year)
+
+
+        name = fields.Char()
+
+        year = fields.Integer()
+        month = fields.Integer()
+        day_count = fields.Integer(compute='compute_day_count',store=True)
+
+        @api.onchange('year','month')
+        @api.depends('year','month')
+        def compute_day_count(self):
+            for r in self:
+                if r.year and r.month:
+                    r.day_count = calendar.monthrange(r.year,r.month)[1]
+
+        @api.model
+        def find_payment_month(self,d):
+            if not d: 
+                raise UserError(_('Call function find_payment_month without date'))
+            year = d.year
+            month = d.month
+            pm = self.search([('year','=',year),('month','=',month)],limit=1)
+            if not pm:
+                pm = self.create({
+                    'year':year,
+                    'month':month
+                })
+            return pm
+
+        def add_months(self,date, months): 
+            target_month = months + date.month
+            year = date.year + int((target_month-1) / 12)
+            month = (target_month % 12)
+            if month == 0:
+                month = 12
+            day = date.day
+            last_day = calendar.monthrange(year, month)[1]
+            if day > last_day:
+                day = last_day
+            new_date = datetime(year, month, day)
+            return new_date
+
+        @api.model
+        def fill_payment_month(self,r,dates):
+            if not dates: 
+                return False
+            
+            dates = list(map(lambda x: fields.Datetime.from_string(x), dates))
+            dates.sort()
+            res = []
+            for p in dates:
+                l = (p.year,p.month,1)
+                if not l in res:
+                    res.append(l)
+
+            d = datetime(res[0][0], res[0][1], res[0][2], 0, 0, 0)
+            end_d = self.add_months(datetime(res[-1][0], res[-1][1], res[-1][2], 0, 0, 0),1) 
+            while d != end_d :
+                res = self.find_payment_month(d).id
+                r.payment_month_ids = [(4, res)]
+                d =  self.add_months(d,1)
+            
+            que_year = []
+            for e in r.payment_month_ids:
+                l = (e.year,e.payment_quarter)
+                if not l in que_year:
+                    que_year.append(l)
+
+
+            for e in que_year:
+                y = e[0]
+                q = e[1]
+                quarter_res = self.search([('year','=',y),('payment_quarter','=',q)])
+
+                if len(r.payment_month_ids.filtered(lambda r: r.id in quarter_res.ids)) != 3:
+                    for x in self.quarter_months(q):
+
+                        s_res = self.search([('month','=',x),('year','=',y),('payment_quarter','=',q)])
+                        a_r = self.find_payment_month(datetime(y, x, 1, 0, 0, 0)).id if not s_res else s_res.id
+
+                        r.payment_month_ids = [(4, a_r)]
+
+
 class validate_passport(models.Model):
     _name = 'prom.validate_passport'
     _rec_name = 'validate_user'
@@ -18,16 +158,7 @@ class validate_passport(models.Model):
     is_validate = fields.Boolean(defult=False)
     validate_time = fields.Datetime()
     validate_user = fields.Many2one(comodel_name='res.users', default=lambda self: self.env.user)
-    # passport_id = fields.Many2one(comodel_name='prom.passport')
 
-    # <!-- group_manager - Менеджер  -->
-    # <!-- group_commercial_department - Коммерческий отдел  -->
-    # <!-- group_support - Техническая служба  -->
-    # <!-- logistics_service - Служба логистики -->
-    # <!-- group_chief_accountant - Главный бухгалтер  -->
-    # <!-- group_financial_director - Финансовый директор  -->
-    # <!-- group_legal_service - Юридическая служба  -->
-    # <!-- group_security_service -Служба безопасности   -->
 
 
 class passport(models.Model):
@@ -35,7 +166,7 @@ class passport(models.Model):
     _description = u'Passport'
     _inherit = ['mail.thread']
     _rec_name = 'compute_name'
-
+    _order = 'id DESC'
     compute_name = fields.Char(compute='_compute_name')
     
     @api.onchange('specification_number','contract_number')
@@ -390,10 +521,6 @@ class passport(models.Model):
     def compute_price_rub_date_sign_wonds(self):
         for r in self:
             r.price_rub_date_sign_wonds = self.price_rub_date_sign_compute(r,False)
-            # if r.price_rub_date_sign and r.project_id :
-            #     if r.project_id.customer_company_id:
-            #         nds = r.project_id.customer_company_id.nds or 0
-            #         r.price_rub_date_sign_wonds = r.price_rub_date_sign - (r.price_rub_date_sign * (nds/100))
 
 
 
@@ -478,7 +605,7 @@ class passport(models.Model):
     date_of_accept = fields.Date()
     warranty_period = fields.Integer()
     date_of_warranty_end = fields.Date(compute='compute_date_of_warranty_end',store=True)
-
+    
     @api.onchange('date_of_start','warranty_period')
     @api.depends('date_of_start','warranty_period')
     def compute_date_of_warranty_end(self):
@@ -488,6 +615,15 @@ class passport(models.Model):
             else:
                 r.date_of_warranty_end = False
 
+    date_of_finstart= fields.Date(compute='compute_date_of_finstart',store=True)
+    delivery_time = fields.Integer()
+    @api.onchange('date_of_start','delivery_time')
+    @api.depends('date_of_start','delivery_time')
+    def compute_date_of_finstart(self):
+        for r in self:
+            if r.date_of_start:
+                r.date_of_finstart = fields.Datetime.from_string(r.date_of_start) + timedelta(days=int(r.delivery_time))
+                
 
     date_of_pr_start = fields.Date()
 
@@ -856,96 +992,19 @@ class passport(models.Model):
     )
     
     # @api.onchange('fact_payment_date','endpnr_payment_date','message_payment_date','avance_payment_date')
-    @api.depends('fact_payment_date','endpnr_payment_date','message_payment_date','avance_payment_date')
+    @api.depends('fact_date_of_payment','endpnr_date_of_payment','message_date_of_payment','avance_date_of_payment')
     def update_payment_month_ids(self):
         for r in self:
             r.payment_month_ids = False
             dates = []
-            if r.fact_payment_date: dates.append(r.fact_payment_date)
-            if r.endpnr_payment_date: dates.append(r.endpnr_payment_date)
-            if r.message_payment_date: dates.append(r.message_payment_date)
-            if r.avance_payment_date: dates.append(r.avance_payment_date)
+            if r.fact_date_of_payment: dates.append(r.fact_date_of_payment)
+            if r.endpnr_date_of_payment: dates.append(r.endpnr_date_of_payment)
+            if r.message_date_of_payment: dates.append(r.message_date_of_payment)
+            if r.avance_date_of_payment: dates.append(r.avance_date_of_payment)
             if dates:
                 self.env["prom.payment_month"].fill_payment_month(r,dates)
-
-    class payment_month(models.Model):
-        _name = 'prom.payment_month'
-        _rec_name="short_name"
-        _sql_constraints = [
-        ('date_uniq', 'unique(year,month)',
-        ('There is already year and month record.'))
-        ]
-        short_name = fields.Char(compute="compute_short_name",store=True)
-
-        @api.onchange('year','month')
-        @api.depends('year','month')
-        def compute_short_name(self):
-            for r in self:
-                if r.year and r.month:
-                    r.short_name = str(r.month) + "." + str(r.year)
-        # _rec_name = 'module.rec_name' # optional
-        # _description = 'Module description'
-        # _order = 'field1, field2, ' # optional
-        name = fields.Char()
-
-        year = fields.Integer()
-        month = fields.Integer()
-        day_count = fields.Integer(compute='compute_day_count',store=True)
-
-        @api.onchange('year','month')
-        @api.depends('year','month')
-        def compute_day_count(self):
-            for r in self:
-                if r.year and r.month:
-                    r.day_count = calendar.monthrange(r.year,r.month)[1]
+    
 
 
-        @api.model
-        def find_payment_month(self,d):
-            if not d: 
-                raise UserError(_('Call function find_payment_month without date'))
-            # d = fields.Datetime.from_string(d)
-            year = d.year
-            month = d.month
-            pm = self.search([('year','=',year),('month','=',month)],limit=1)
-            if not pm:
-                pm = self.create({
-                    'year':year,
-                    'month':month
-                })
-            return pm
-
-        def add_months(self,date, months): 
-            target_month = months + date.month
-            year = date.year + int((target_month-1) / 12)
-            month = (target_month % 12)
-            if month == 0:
-                month = 12
-            day = date.day
-            last_day = calendar.monthrange(year, month)[1]
-            if day > last_day:
-                day = last_day
-            new_date = datetime(year, month, day)
-            return new_date
-
-        @api.model
-        def fill_payment_month(self,r,dates):
-            # print "fill_payment_month dates: ", dates
-            if not dates: 
-                return False
-            
-            dates = list(map(lambda x: fields.Datetime.from_string(x), dates))
-            dates.sort()
-            res = []
-            for p in dates:
-                l = (p.year,p.month,1)
-                if not l in res:
-                    res.append(l)
-
-            d = datetime(res[0][0], res[0][1], res[0][2], 0, 0, 0)
-            end_d = self.add_months(datetime(res[-1][0], res[-1][1], res[-1][2], 0, 0, 0),1) 
-            while d != end_d :
-                res = self.find_payment_month(d).id
-                # print "find payment month in system... Link record for each month",res
-                r.payment_month_ids = [(4, res)]
-                d =  self.add_months(d,1)
+    def report_cf (self):
+        res = {}

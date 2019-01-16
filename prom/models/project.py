@@ -8,6 +8,18 @@ from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
 from lxml import etree
 import logging
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.styles import Alignment
+from openpyxl.utils import get_column_letter
+import io
+import types
+from reports.rp_write import rp_write
+from reports.cf_write import cf_write
+from reports.pl_write import pl_write
+from reports.plan_zakupok import plan_zakupok
+from reports.plan_prodash import plan_prodash
+
 _logger = logging.getLogger("project")
 
 class res_company(models.Model):
@@ -24,11 +36,12 @@ class res_company(models.Model):
     )
     activity = fields.Text()
 
-
 class project(models.Model):
     _name = 'prom.project'
     _description = u'List of projects'
     _inherit = ['mail.thread']
+    _order = 'id DESC'
+    
 
     @api.multi
     def add_passport(self):
@@ -49,7 +62,6 @@ class project(models.Model):
         #     r.passport_ids = [0,0,{
         #         "project_id":r.id
         #     }]
-
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
@@ -78,6 +90,7 @@ class project(models.Model):
                 ('contract_done', 'contract_done'),
         ], default = "in_work", compute='compute_state'
     )
+
     @api.multi
     def compute_state(self):
         for r in self:
@@ -101,7 +114,8 @@ class project(models.Model):
                         is_y=True
             if not is_y:
                 r.state = 'in_work'
-    name = fields.Char()
+
+    name = fields.Char(required=True)
     manager_user_id = fields.Many2one(
         string="manager of project",
         comodel_name="res.users",
@@ -119,28 +133,25 @@ class project(models.Model):
             ('main', 'main'),
             ('contractor', 'contractor'),
             ('subcontractor', 'subcontractor'),
-        ], comppute="compute_kind_podryad",store=True
+        ],comppute="compute_kind_podryad",store=True
     )
-    @api.onchange('parent_project_id')
-    @api.depends('parent_project_id')
+
+    @api.onchange('parent_project_id','name')
+    @api.depends('parent_project_id','name')
     def compute_kind_podryad(self):
         for r in self:
-            if not r.parent_project_id:
-                r.kind_podryad = "main"
-            elif r.parent_project_id and not r.parent_project_id.parent_project_id:
+            if r.parent_project_id and not r.parent_project_id.parent_project_id:
                 r.kind_podryad = "contractor"
             elif r.parent_project_id and r.parent_project_id.parent_project_id:
                 r.kind_podryad = "subcontractor"
+            else:
+                r.kind_podryad = "main"
 
     parent_project_id = fields.Many2one(
         comodel_name="prom.project",
     )
 
     def add_sub_project_ids(self):
-        # action = self.env.ref('').read()[0]
-        # action['context'] = {'default_parent_project_id': self.id}
-        # action['target']= 'current'
-   
         return {
             'name':u'Новый субподряд',
             'type': 'ir.actions.act_window',
@@ -173,3 +184,45 @@ class project(models.Model):
         comodel_name="prom.passport",
         inverse_name="project_id",
     )
+    @api.model
+    def report_main_blank(self,id):
+        r = self.sudo().search([('id','=',id)],limit=1)[0]
+        rw = rp_write()
+        rw.render(r)
+        return rw.stream()
+
+    @api.model
+    def report_cf(self,id):
+        r = self.sudo().search([('id','=',id)],limit=1)[0]
+        rw = cf_write()
+        rw.render(r)
+        return rw.stream()
+
+    @api.model
+    def report_pl(self,id):
+        r = self.sudo().search([('id','=',id)],limit=1)[0]
+        rw = pl_write()
+        rw.render(r)
+        return rw.stream()
+
+    @api.model
+    def report_plan_zakupok(self,id):
+        r = self.sudo().search([('id','=',id)],limit=1)[0]
+        rw = plan_zakupok()
+        rw.render(r)
+        return rw.stream()
+
+    @api.model
+    def report_plan_prodash(self,id):
+        r = self.sudo().search([('id','=',id)],limit=1)[0]
+        rw = plan_prodash()
+        rw.render(r)
+        return rw.stream()
+
+
+    def call_print_wizard(self):
+        print 'call_print_wizard'
+        model = self.env["jasper.printwizard"]
+        subcontext = {}
+        model_p = model.call_wizard(record=self, subcontext=subcontext)
+        return model_p

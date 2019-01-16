@@ -20,8 +20,10 @@
 
 
         'views/product.xml',
+        'views/product_item.xml',
         'views/obligation.xml',
         'views/obligation_type.xml',
+        'views/obligation_type_money.xml',
         
         'views/finn_transaction.xml',
         

@@ -20,12 +20,18 @@
 
                     <field name="state" widget="statusbar" statusbar_visible="" />
                 </header>
-                <field name="parent_project_id" invisible="1"/>
+
+                <sheet invisible="1">
+                <field name="parent_project_id"/>
+                <button string="update_payment_month_ids" name="update_payment_month_ids" type="object" class="btn" />
+                <field name="payment_month_ids"/>
+                </sheet>
+
+
                 <sheet>
-                        <button string="update_payment_month_ids" name="update_payment_month_ids" type="object" class="btn" />
                     <group string="">
 
-                        <field name="payment_month_ids"/>
+                        
                         <field name="project_id" attrs="{'readonly':[('project_id','!=',False)]}"/>
                         <field name="parent_passport_id" readonly="1"/>
                         
@@ -39,7 +45,7 @@
                         <field name="is_export"/>
                         <field name="kp_cancel_reason" attrs="{'invisible':[('state','not in',['kp_cancel'])]}"/>
                         <field name="contract_cancel_reason" attrs="{'invisible':[('state','not in',['contract_cancel'])]}"/>
-
+                        <field name="contract_number"/>
                         <field name="specification_number"/>
                         <field name="term_of_delivery"/>
                         <field name="attachment_ids" widget="many2many_binary" string="Attach a file"/>
@@ -131,10 +137,7 @@
                    
                 </sheet>
                 <sheet>
-                    <group string='Информация о договоре.'>
-                        <field name="contract_number"/>
-                    </group>
-                    <group >
+                    <group  string='Информация о договоре.'>
                         <group>
                             <field name="currency_id"/>
                             <field name="date_of_signing" />
@@ -182,6 +185,10 @@
                             <field name="delivery_days_to_rf"/>
                             <field name="start_up_period"/>
                             <field name="warranty_period"/>
+                            <field name="delivery_time"/>
+                            
+                            
+
                         </group>
                         <group>
                             <field name="date_of_accept"/>
@@ -190,6 +197,7 @@
                             <field name="date_of_delivery_to_rf"/>
                             <field name="date_of_start"/>
                             <field name="date_of_warranty_end"/>
+                            <field name="date_of_finstart"/>
                         </group>
                     </group>
                 </sheet>
@@ -312,6 +320,7 @@
                         <field name="finn_transaction_ids" nolabel='1' context="{'default_passport_id':id, 'tree_view_ref' : 'prom.finn_transaction_view_tree_min'}"/>
                     </group>
                 </sheet>
+
 
 
                 <sheet>

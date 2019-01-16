@@ -1,57 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="product_view_form" model="ir.ui.view">
-        <field name="name">prom.product.form</field>
-        <field name="model">prom.product</field>
-        <field name="arch" type="xml">
-            <form string="product">
-                <sheet>
-                <h1>Товар или услуга</h1>
-                    <group>
-                    
-
-                        <field name="product_item_id"/>
-                        <!-- <field name="project_id"/> -->
-                        <!-- <field name="parent_project_id"/> -->
-                        <field name="obligation_type_id"/>
-                        <field name="obligation_type_money_id"/>
-                        <field name="passport_id" attrs="{'readonly':[('passport_id','!=','False')]}"/>
-                        <field name="currency_id" readonly="1"/>
-                    
-                    </group>
-                <group >
-                    <group>
-                        <field name="count"/>
-                        <field name="price"/>
-                    </group>
-                    <group>
-                        <!-- <field name="currency_id"/> -->
-                        <field name="unit"/>
-                    </group>
-                </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-    <record id="product_view_tree" model="ir.ui.view">
-        <field name="name">prom.product.tree</field>
-        <field name="model">prom.product</field>
-        <field name="arch" type="xml">
-            <tree string="product">
-            <field name="product_item_id"/>
-                <!-- <field name="project_id"/> -->
-                <!-- <field name="parent_project_id"/> -->
-                <field name="obligation_type_id"/>
-                <field name="obligation_type_money_id"/>
-                <field name="count"/>
-                <field name="currency_id"/>
-                <field name="price"/>
-            </tree>
-        </field>
-    </record>
-    <record id="product_action_form" model="ir.actions.act_window">
-        <field name="name">product</field>
-        <field name="res_model">prom.product</field>
-        <field name="view_mode">tree,form</field>
-    </record> 
+	<record id="product_view_form" model="ir.ui.view">
+		<field name="name">prom.product.form</field>
+		<field name="model">prom.product</field>
+		<field name="arch" type="xml">
+			<form string="product">
+				<sheet>
+					<h1>Товар или услуга</h1>
+					<group>
+						<field name="product_item_id"/>
+						<!-- <field name="project_id"/> -->
+						<!-- <field name="parent_project_id"/> -->
+						<field name="obligation_type_id"/>
+						<field name="obligation_type_money_id"/>
+						<field name="passport_id" attrs="{'readonly':[('passport_id','!=','False')]}"/>
+						<field name="currency_id" readonly="1"/>
+					</group>
+					<group >
+						<group>
+							<field name="count"/>
+							<field name="price"/>
+						</group>
+						<group>
+							<!-- <field name="currency_id"/> -->
+							<field name="unit"/>
+						</group>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+	<record id="product_view_tree" model="ir.ui.view">
+		<field name="name">prom.product.tree</field>
+		<field name="model">prom.product</field>
+		<field name="arch" type="xml">
+			<tree string="product">
+				<field name="product_item_id"/>
+				<!-- <field name="project_id"/> -->
+				<!-- <field name="parent_project_id"/> -->
+				<field name="obligation_type_id"/>
+				<field name="obligation_type_money_id"/>
+				<field name="count"/>
+				<field name="currency_id"/>
+				<field name="price"/>
+			</tree>
+		</field>
+	</record>
+	<record id="product_action_form" model="ir.actions.act_window">
+		<field name="name">product</field>
+		<field name="res_model">prom.product</field>
+		<field name="view_mode">tree,form</field>
+	</record>
 </odoo>

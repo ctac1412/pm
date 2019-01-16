@@ -17,7 +17,7 @@ class obligation(models.Model):
     persent = fields.Integer()
     unit = fields.Char()
     count = fields.Integer()
-
+    
     obligation_date  = fields.Datetime()
 
     obligation_type_id = fields.Many2one(

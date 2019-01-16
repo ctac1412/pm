@@ -28,14 +28,20 @@
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
+                <div name="buttons" class="oe_right oe_button_box">
+              <button string="Печать" class="oe_stat_button oe_inline oe_right" icon="fa-print" type="object" name="call_print_wizard"/>
+            </div>
 
                     <group>
+                    
+                        <field name="id"/>
                         <field name="name"/>
                         <field name="manager_user_id"/>
                         <field name="customer_company_id"/>
                         <field name="contractor_company_id"/>
                         <field name="parent_project_id" readonly="1"/>
-                        <field name="kind_podryad" readonly="1"/>
+                        <field name="kind_podryad" class="oo_read_only"/>
+                  
                     </group>
 
                     <div class="o_row">
@@ -48,7 +54,7 @@
                     </group>
                     <div class="o_row">
                         <h2>Подрядчики
-                        <button type="object" string="Добавить подрядчика" name="add_sub_project_ids" class='oe_highlight oe_edit_only' />
+                        <button type="object" string="Добавить подрядчика" name="add_sub_project_ids" class='oe_highlight oe_edit_only' attrs="{'invisible': [('kind_podryad','=','subcontractor')]}" />
                           
                         </h2>
                     </div>
@@ -79,7 +85,7 @@
 
                 <field name="customer_company_id"/>
                 <field name="contractor_company_id"/>
-                <field name="kind_podryad"/>
+                <field name="kind_podryad" class="oe_read_only"/>
 
                 <field name="parent_project_id"/>
                 <field name="state"/>
