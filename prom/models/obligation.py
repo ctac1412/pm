@@ -18,7 +18,7 @@ class obligation(models.Model):
     unit = fields.Char()
     count = fields.Integer()
     
-    obligation_date  = fields.Datetime()
+    obligation_date  = fields.Datetime(required=True)
 
     obligation_type_id = fields.Many2one(
         comodel_name="prom.obligation_type"

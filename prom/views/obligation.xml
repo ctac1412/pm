@@ -39,7 +39,7 @@
                 <field name="name"/>
                 <!-- <field name="currency_id"/> -->
                 <field name="price"/>
-                <field name="obligation_date"/>
+                <field name="obligation_date" required="1"/>
                 <field name="persent"/>
                 <field name="unit"/>
                 <field name="count"/>

@@ -220,7 +220,7 @@ class cf_write(report_writer):
             self.label_value('','')
             self.label_value(u'Денежные потоки по операционной деятельности','')
         
-        self.compute_row(super_quarters,u'Поступление денежных средств от реализации товаров, работ, услуг','pay_summ')
+        self.compute_row(super_quarters,u'Поступление денежных средств от реализации товаров, работ, услуг','pay_summ',style_name = 'grennCell',is_name_style=True)
         
         root = [
                 ('avance',u'Авансы полученные'),
@@ -230,20 +230,20 @@ class cf_write(report_writer):
         ]
 
         for key in root:
-            self.compute_row(super_quarters,key[1],key[0])
+            self.compute_row(super_quarters,key[1],key[0],style_name = 'grennCell')
             self.compute_row(super_quarters,self.get_name_passport(r),key[0])
 
         self.label_value('','')
-        self.compute_row(super_quarters,u'Оплата поставщикам товаров, работ, услуг','pay_summ_podryads',podryads = True)
+        self.compute_row(super_quarters,u'Оплата поставщикам товаров, работ, услуг','pay_summ_podryads',podryads = True,style_name = 'grennCell',is_name_style=True)
 
         for key in root:
-            self.compute_row(super_quarters,key[1],key[0] +"_podryads",podryads = True)
+            self.compute_row(super_quarters,key[1],key[0] +"_podryads",podryads = True,style_name = 'grennCell')
             self.compute_row(super_quarters,"",key[0] +"_podryads_each",podryads = True)
 
         
 
         self.label_value('','')
-        self.compute_row(super_quarters,u'Сумма облигаций','summ_obligations')
+        self.compute_row(super_quarters,u'Сумма облигаций','summ_obligations',style_name = 'grennCell',is_name_style=True)
         self.compute_row(super_quarters,'','obligations')
 
         if not sub:
@@ -255,11 +255,11 @@ class cf_write(report_writer):
             for sybpodryad in subpodryads:
                 self.render_block(r=sybpodryad,sub=True)
 
-            self.compute_row(super_quarters,u'Сальдо основного проекта','saldo')
-            self.compute_row(self.root_super_quarters,u'Сальдо денежных потоков по операционной деятельности','root_saldo')
+            self.compute_row(super_quarters,u'Сальдо основного проекта','saldo',style_name = 'grennCell',is_name_style=True)
+            self.compute_row(self.root_super_quarters,u'Сальдо денежных потоков по операционной деятельности','root_saldo',style_name = 'grennCell',is_name_style=True)
             
         if sub:
-            self.compute_row(super_quarters,u'Сальдо денежных потоков по операционной деятельности подрядчиков/ субподрядчиков','saldo')
+            self.compute_row(super_quarters,u'Сальдо денежных потоков по операционной деятельности подрядчиков/ субподрядчиков','saldo',style_name = 'grennCell',is_name_style=True)
 
         self.ws.column_dimensions[get_column_letter(1)].width = 72
 
@@ -269,73 +269,74 @@ class cf_write(report_writer):
     def get_quartall_summ_for_each_obligations(self,x,index):
         return sum(m['obligations'][index]["price"] for m in x["months"])
 
-    def compute_row(self,super_quarters,label,root,ob = False,sub_m = False,sub_quar = False,podryads=False,r = False):
+    def compute_row(self, super_quarters,label, root,ob = False, sub_m = False, sub_quar = False, podryads=False, r = False, style_name = False, is_name_style = False):
         payment_quarters = super_quarters["payment_quarters"]
         row = self.master_row
-        self.cell_in_row(label,value_style=self.label_style())
+        self.cell_in_row(label,value_style=self.label_style(),style_name = style_name if is_name_style else False)
+        
         for x_index in range(0,len(payment_quarters)):
             x = payment_quarters[x_index]
             for m_index in range(0,len(x["months"])):
                 m = x["months"][m_index]
                 if not podryads and root in ["avance","fact","endpnr","message","pay_summ","saldo"]:
-                    self.cell_in_row(m[root]["plan"],f_row = row)
-                    self.cell_in_row(m[root]["fact"],f_row = row)
+                    self.cell_in_row(m[root]["plan"],f_row = row,style_name = style_name)
+                    self.cell_in_row(m[root]["fact"],f_row = row,style_name = style_name)
                 elif root in ["root_saldo"]:
-                    self.cell_in_row(m["saldo"]["plan"] + sum(q["payment_quarters"][x_index]["months"][m_index]["saldo"]["plan"] for q in self.sub_super_quarters),f_row = row)
-                    self.cell_in_row(m["saldo"]["fact"] + sum(q["payment_quarters"][x_index]["months"][m_index]["saldo"]["fact"] for q in self.sub_super_quarters),f_row = row)
+                    self.cell_in_row(m["saldo"]["plan"] + sum(q["payment_quarters"][x_index]["months"][m_index]["saldo"]["plan"] for q in self.sub_super_quarters),f_row = row,style_name = style_name)
+                    self.cell_in_row(m["saldo"]["fact"] + sum(q["payment_quarters"][x_index]["months"][m_index]["saldo"]["fact"] for q in self.sub_super_quarters),f_row = row,style_name = style_name)
 
                 elif podryads and root in ["avance_podryads","fact_podryads","endpnr_podryads","message_podryads","pay_summ_podryads"]:
-                    self.cell_in_row(m[root]["plan"],f_row = row)
-                    self.cell_in_row(m[root]["fact"],f_row = row)
+                    self.cell_in_row(m[root]["plan"],f_row = row,style_name = style_name)
+                    self.cell_in_row(m[root]["fact"],f_row = row,style_name = style_name)
                 elif root in ["summ_obligations"]:
-                    self.cell_in_row(m[root]["plan"],f_row = row)
-                    self.cell_in_row(m[root]["fact"],f_row = row)
+                    self.cell_in_row(m[root]["plan"],f_row = row,style_name = style_name)
+                    self.cell_in_row(m[root]["fact"],f_row = row,style_name = style_name)
                 elif podryads and root in ["avance_podryads_each","fact_podryads_each","endpnr_podryads_each","message_podryads_each"]:
                     cell = self.master_cell
                     for pod_index in range(0,len(m["podryads"])):
                         podryad = m["podryads"][pod_index]
-                        self.cell_in_row(podryad["name"],f_cell =  1,f_row = row + pod_index)
-                        self.cell_in_row(podryad[root.replace('_podryads_each','')]['plan'],f_cell = cell,f_row = row + pod_index)
-                        self.cell_in_row(podryad[root.replace('_podryads_each','')]['fact'],f_cell = cell + 1,f_row = row + pod_index)
+                        self.cell_in_row(podryad["name"],f_cell =  1,f_row = row + pod_index,style_name = style_name)
+                        self.cell_in_row(podryad[root.replace('_podryads_each','')]['plan'],f_cell = cell,f_row = row + pod_index,style_name = style_name)
+                        self.cell_in_row(podryad[root.replace('_podryads_each','')]['fact'],f_cell = cell + 1,f_row = row + pod_index,style_name = style_name)
                     self.master_cell = cell +  2
                 elif root in ["obligations"]:
                     cell = self.master_cell
                     for ob_index in range(0,len(m['obligations'])):
                         ob = m['obligations'][ob_index]
-                        self.cell_in_row(ob['name'],f_cell =1, f_row = row + ob_index )
-                        self.cell_in_row(ob['price'],f_cell = cell, f_row = row +ob_index )
-                        self.cell_in_row(0,f_cell = cell + 1, f_row = row + ob_index)
+                        self.cell_in_row(ob['name'],f_cell =1, f_row = row + ob_index ,style_name = style_name)
+                        self.cell_in_row(ob['price'],f_cell = cell, f_row = row +ob_index ,style_name = style_name )
+                        self.cell_in_row(0,f_cell = cell + 1, f_row = row + ob_index,style_name = style_name)
                     self.master_cell  = cell + 2
 
             if not podryads and root in ["avance","fact","endpnr","message","pay_summ","saldo"]:
-                self.cell_in_row(x['quarters_summ']["plan"][root],f_row = row)
-                self.cell_in_row(x['quarters_summ']["fact"][root],f_row = row)
+                self.cell_in_row(x['quarters_summ']["plan"][root],f_row = row,style_name = style_name)
+                self.cell_in_row(x['quarters_summ']["fact"][root],f_row = row,style_name = style_name)
             elif root in ["root_saldo"]:
-                self.cell_in_row(x['quarters_summ']["plan"]["saldo"] + sum(q["payment_quarters"][x_index]['quarters_summ']["plan"]["saldo"] for q in self.sub_super_quarters),f_row = row)
-                self.cell_in_row(x['quarters_summ']["fact"]["saldo"] + sum(q["payment_quarters"][x_index]['quarters_summ']["fact"]["saldo"] for q in self.sub_super_quarters),f_row = row)
+                self.cell_in_row(x['quarters_summ']["plan"]["saldo"] + sum(q["payment_quarters"][x_index]['quarters_summ']["plan"]["saldo"] for q in self.sub_super_quarters),f_row = row,style_name = style_name)
+                self.cell_in_row(x['quarters_summ']["fact"]["saldo"] + sum(q["payment_quarters"][x_index]['quarters_summ']["fact"]["saldo"] for q in self.sub_super_quarters),f_row = row,style_name = style_name)
             elif podryads and root in ["avance_podryads","fact_podryads","endpnr_podryads","message_podryads","pay_summ_podryads"]:
-                self.cell_in_row(x['quarters_summ_podryads']["plan"][root],f_row = row)
-                self.cell_in_row(x['quarters_summ_podryads']["fact"][root],f_row = row)
+                self.cell_in_row(x['quarters_summ_podryads']["plan"][root],f_row = row,style_name = style_name)
+                self.cell_in_row(x['quarters_summ_podryads']["fact"][root],f_row = row,style_name = style_name)
             elif root in ["summ_obligations"]:
-                self.cell_in_row(x['quarters_summ_summ_obligations']["plan"],f_row = row)
-                self.cell_in_row(x['quarters_summ_summ_obligations']["fact"],f_row = row)
+                self.cell_in_row(x['quarters_summ_summ_obligations']["plan"],f_row = row,style_name = style_name)
+                self.cell_in_row(x['quarters_summ_summ_obligations']["fact"],f_row = row,style_name = style_name)
             elif podryads and root in ["avance_podryads_each","fact_podryads_each","endpnr_podryads_each","message_podryads_each"]:
                 cell = self.master_cell
                 for pod_index in range(0,len(x["months"][0]["podryads"])):
-                    self.cell_in_row(self.get_quartall_summ_for_each(x,pod_index,root,'plan'),f_cell = cell,f_row = row + pod_index)
-                    self.cell_in_row(self.get_quartall_summ_for_each(x,pod_index,root,'fact'),f_cell = cell + 1,f_row = row + pod_index)
+                    self.cell_in_row(self.get_quartall_summ_for_each(x,pod_index,root,'plan'),f_cell = cell,f_row = row + pod_index,style_name = style_name)
+                    self.cell_in_row(self.get_quartall_summ_for_each(x,pod_index,root,'fact'),f_cell = cell + 1,f_row = row + pod_index,style_name = style_name)
                 self.master_cell = cell +  2
             elif root == "obligations":
                 cell = self.master_cell
                 for ob_index in range(0,len(x["months"][0]['obligations'])):
-                    self.cell_in_row(self.get_quartall_summ_for_each_obligations(x,ob_index),f_cell = cell,f_row = row+ob_index)
-                    self.cell_in_row(0,f_cell = cell + 1,f_row = row+ob_index)
+                    self.cell_in_row(self.get_quartall_summ_for_each_obligations(x,ob_index),f_cell = cell,f_row = row+ob_index,style_name = style_name)
+                    self.cell_in_row(0,f_cell = cell + 1,f_row = row+ob_index,style_name = style_name)
                 self.master_cell  = cell +  2
 
         # summ quartal columns
         if not podryads and root in ["avance","fact","endpnr","message","pay_summ","saldo"]:
-            self.cell_in_row(super_quarters['super_quarters_summ']["plan"][root],f_row = row)
-            self.cell_in_row(super_quarters['super_quarters_summ']["fact"][root],f_row = row)
+            self.cell_in_row(super_quarters['super_quarters_summ']["plan"][root],f_row = row,style_name = style_name)
+            self.cell_in_row(super_quarters['super_quarters_summ']["fact"][root],f_row = row,style_name = style_name)
         elif root in ["root_saldo"]:
             saldo = 0
             for x_index in range(0,len(payment_quarters)):
@@ -346,27 +347,27 @@ class cf_write(report_writer):
                 for x_index in range(0,len(q["payment_quarters"])):
                     s_saldo += q["payment_quarters"][x_index]['quarters_summ']["plan"]["saldo"]
 
-            self.cell_in_row(saldo + s_saldo,f_row = row)
-            self.cell_in_row(0,f_row = row)
+            self.cell_in_row(saldo + s_saldo,f_row = row,style_name = style_name)
+            self.cell_in_row(0,f_row = row,style_name = style_name)
 
         elif podryads and root in ["avance_podryads","fact_podryads","endpnr_podryads","message_podryads","pay_summ_podryads"]:
-            self.cell_in_row(super_quarters['super_quarters_summ_podryads']["plan"][root],f_row = row)
-            self.cell_in_row(super_quarters['super_quarters_summ_podryads']["fact"][root],f_row = row)
+            self.cell_in_row(super_quarters['super_quarters_summ_podryads']["plan"][root],f_row = row,style_name = style_name)
+            self.cell_in_row(super_quarters['super_quarters_summ_podryads']["fact"][root],f_row = row,style_name = style_name)
         elif root in ["summ_obligations"]:
-            self.cell_in_row(super_quarters['super_quarters_summ_obligations']["plan"],f_row = row)
-            self.cell_in_row(super_quarters['super_quarters_summ_obligations']["fact"],f_row = row)
+            self.cell_in_row(super_quarters['super_quarters_summ_obligations']["plan"],f_row = row,style_name = style_name)
+            self.cell_in_row(super_quarters['super_quarters_summ_obligations']["fact"],f_row = row,style_name = style_name)
         elif podryads and root in ["avance_podryads_each","fact_podryads_each","endpnr_podryads_each","message_podryads_each"]:
             cell = self.master_cell
             for pod_index in range(0,len(payment_quarters[0]["months"][0]["podryads"])):
-                self.cell_in_row(sum(self.get_quartall_summ_for_each(payment_quarters[x_index],pod_index,root,'plan') for x_index in range(0,len(payment_quarters))),f_cell = cell,f_row = row + pod_index)
-                self.cell_in_row(sum(self.get_quartall_summ_for_each(payment_quarters[x_index],pod_index,root,'fact') for x_index in range(0,len(payment_quarters))),f_cell = cell + 1,f_row = row + pod_index)
+                self.cell_in_row(sum(self.get_quartall_summ_for_each(payment_quarters[x_index],pod_index,root,'plan') for x_index in range(0,len(payment_quarters))),f_cell = cell,f_row = row + pod_index,style_name = style_name)
+                self.cell_in_row(sum(self.get_quartall_summ_for_each(payment_quarters[x_index],pod_index,root,'fact') for x_index in range(0,len(payment_quarters))),f_cell = cell + 1,f_row = row + pod_index,style_name = style_name)
             self.master_cell = cell +  2
             self.master_row = row + len(payment_quarters[0]["months"][0]["podryads"]) -1 
         elif root == "obligations":
             cell = self.master_cell
             for ob_index in range(0,len(payment_quarters[0]["months"][0]['obligations'])):
-                self.cell_in_row(sum(self.get_quartall_summ_for_each_obligations(x,ob_index) for x in payment_quarters),f_cell = cell,f_row = row+ob_index)
-                self.cell_in_row(0,f_cell = cell + 1,f_row = row+ob_index)
+                self.cell_in_row(sum(self.get_quartall_summ_for_each_obligations(x,ob_index) for x in payment_quarters),f_cell = cell,f_row = row+ob_index,style_name = style_name)
+                self.cell_in_row(0,f_cell = cell + 1,f_row = row+ob_index,style_name = style_name)
             self.master_cell = cell +  2
             self.master_row = row + len(payment_quarters[0]["months"][0]['obligations']) -1 
 

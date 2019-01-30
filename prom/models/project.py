@@ -63,23 +63,23 @@ class project(models.Model):
         #         "project_id":r.id
         #     }]
 
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        res = super(project, self).fields_view_get(view_id, view_type, toolbar=toolbar, submenu=submenu)
-        group_id = self.user_has_groups('prom.group_manager')
-        doc = etree.XML(res['arch'])
-        if not group_id:
-            if view_type == 'tree':
-                nodes = doc.xpath("//tree[@string='project']")
-                for node in nodes:
-                    node.set('create', '0')
-                res['arch'] = etree.tostring(doc)
-            if view_type == 'form':
-                nodes = doc.xpath("//form[@string='project']")
-                for node in nodes:
-                    node.set('create', '0')
-                res['arch'] = etree.tostring(doc)
-        return res
+    # @api.model
+    # def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+    #     res = super(project, self).fields_view_get(view_id, view_type, toolbar=toolbar, submenu=submenu)
+    #     group_id = self.user_has_groups('prom.group_manager')
+    #     doc = etree.XML(res['arch'])
+    #     if not group_id:
+    #         if view_type == 'tree':
+    #             nodes = doc.xpath("//tree[@string='project']")
+    #             for node in nodes:
+    #                 node.set('create', '0')
+    #             res['arch'] = etree.tostring(doc)
+    #         if view_type == 'form':
+    #             nodes = doc.xpath("//form[@string='project']")
+    #             for node in nodes:
+    #                 node.set('create', '0')
+    #             res['arch'] = etree.tostring(doc)
+    #     return res
 
     state = fields.Selection(
         selection=[
@@ -121,7 +121,11 @@ class project(models.Model):
         comodel_name="res.users",
         default=lambda self: self.env.user,
         help="Responsible person.",
+
     )
+
+    related_manager_user_id = fields.Char(related="manager_user_id.name")
+
     customer_company_id = fields.Many2one(
         comodel_name="res.company",
     )

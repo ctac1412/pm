@@ -572,12 +572,12 @@ class passport(models.Model):
     delivery_days = fields.Integer()
     date_of_delivery = fields.Date(compute="compute_date_of_delivery",store=True)
 
-    @api.onchange('date_of_pr_production','delivery_days')
-    @api.depends('date_of_pr_production','delivery_days')
+    @api.onchange('date_of_pr_production','delivery_days','delivery_days_to_rf')
+    @api.depends('date_of_pr_production','delivery_days','delivery_days_to_rf')
     def compute_date_of_delivery(self):
         for r in self:
             if r.date_of_pr_production:
-                r.date_of_delivery = fields.Datetime.from_string(r.date_of_pr_production) + timedelta(days=int(r.delivery_days))
+                r.date_of_delivery = fields.Datetime.from_string(r.date_of_pr_production) + timedelta(days=int(r.delivery_days))+ timedelta(days=int(r.delivery_days_to_rf))
             else:
                 r.date_of_delivery = False
 

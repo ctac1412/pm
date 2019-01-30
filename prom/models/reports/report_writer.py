@@ -10,7 +10,7 @@ from lxml import etree
 import logging
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
-from openpyxl.styles import Alignment
+from openpyxl.styles import Alignment,PatternFill, NamedStyle, Font, Border, Side
 from openpyxl.utils import get_column_letter
 import io
 import types
@@ -36,6 +36,17 @@ class report_writer(object):
           u"Октябрь",
           u"Ноябрь",
           u"Декабрь"]
+        self.registrate_style()
+        
+
+    def registrate_style(self):
+        grennCell = NamedStyle(name="grennCell")
+        # grennCell.font = Font(bold=True, size=20)
+        grennCell.fill = PatternFill(start_color='dae6c0', end_color='dae6c0', fill_type='solid')
+        grennCell.alignment = Alignment(wrap_text=True,horizontal='center',vertical="top")
+        
+        self.wb.add_named_style(grennCell)
+
 
     def render_payment_labels(self,payment_quarters):
         row = self.master_row
@@ -65,7 +76,7 @@ class report_writer(object):
     def stream(self):
         return io.BytesIO(save_virtual_workbook(self.wb))
 
-    def write_cell(self,row,column,value,alignment = False, megred_cell = 0):
+    def write_cell(self,row,column,value,alignment = False, megred_cell = 0,style_name=False):
 
         if type(value) == types.BooleanType and not value :
             value = ""
@@ -81,26 +92,32 @@ class report_writer(object):
             c.alignment = alignment
         if megred_cell:
             self.ws.merge_cells(start_row=row, start_column=column, end_row=row, end_column = column + megred_cell)
+        if style_name:
+            c.style= style_name 
         return c
 
     def label_style(self):
         return Alignment(wrap_text=True,horizontal='left',vertical="top")
+
     def value_style(self):
         return Alignment(wrap_text=True,horizontal='center',vertical="top")
 
-    def label_value(self,label,value,f_row=False,f_cell=False,label_style=False,value_style=False):
+    def value_green_style(self):
+        return Alignment(wrap_text=True,horizontal='center',vertical="top")
+
+    def label_value(self,label,value,f_row=False,f_cell=False,label_style=False,value_style=False,style_name=False):
         f_row,f_cell = (f_row or self.master_row,f_cell or self.master_cell)
         label_style,value_style = (label_style or self.label_style(),value_style or self.value_style())
-        self.write_cell(f_row,f_cell,label,label_style)
-        self.write_cell(f_row,f_cell+1,value,value_style)
+        self.write_cell(f_row,f_cell,label,label_style,style_name=style_name)
+        self.write_cell(f_row,f_cell+1,value,value_style,style_name=style_name)
         self.master_row = f_row+ 1
         self.max_cell = max(3,self.max_cell)
 
-    def cell_in_row(self,value,f_row=False,f_cell=False,value_style=False,megred_cell = 0):
+    def cell_in_row(self,value,f_row=False,f_cell=False,value_style=False,megred_cell = 0,style_name = False):
         f_row,f_cell = (f_row or self.master_row, f_cell or self.master_cell)
         value_style = value_style or self.value_style()
 
-        self.write_cell(f_row,f_cell,value,value_style,megred_cell=megred_cell)
+        self.write_cell(f_row,f_cell,value,value_style,megred_cell=megred_cell,style_name=style_name)
         self.master_cell = f_cell + 1 + megred_cell
         self.max_cell = max(self.max_cell, self.master_cell)
 
@@ -115,10 +132,18 @@ class report_writer(object):
         self.master_row = f_row+ 1
         self.max_cell = max(arr_len_excel ,self.max_cell,)
 
-
     def get_obligations(self,passport,x,money):
         obligations = []
-        arr = passport.obligation_ids.filtered(lambda p: p.obligation_type_money_id != False if money else p.obligation_type_money_id == False)  
+        arr=[]
+        if money:
+            arr = passport.obligation_ids.filtered(lambda p: len(p.obligation_type_money_id))
+        else:
+            arr = passport.obligation_ids.filtered(lambda p: len(p.obligation_type_id))
+
+        # print "--------"
+        # print passport.obligation_ids
+        # print arr
+
         for obligation in arr:
             obligation_date =  fields.Datetime.from_string(obligation.obligation_date)
             obligations.append({

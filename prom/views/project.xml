@@ -23,7 +23,7 @@
         <field name="name">prom.project.form</field>
         <field name="model">prom.project</field>
         <field name="arch" type="xml">
-            <form string="project">
+            <form string="project" create="0">
                 <header>
                     <field name="state" widget="statusbar"/>
                 </header>
@@ -36,11 +36,12 @@
                     
                         <field name="id"/>
                         <field name="name"/>
-                        <field name="manager_user_id"/>
+                        <field name="manager_user_id" groups="prom.group_chief_accountant" />
+                        <field name="related_manager_user_id" readonly="1"/>
                         <field name="customer_company_id"/>
                         <field name="contractor_company_id"/>
                         <field name="parent_project_id" readonly="1"/>
-                        <field name="kind_podryad" class="oo_read_only"/>
+                        <field name="kind_podryad" class="oe_read_only"/>
                   
                     </group>
 
@@ -79,7 +80,7 @@
         <field name="name">prom.project.tree</field>
         <field name="model">prom.project</field>
         <field name="arch" type="xml">
-            <tree string="project">
+            <tree string="project" create="0">
                 <field name="name"/>
                 <field name="manager_user_id"/>
 
@@ -100,6 +101,15 @@
         <field name="name">project</field>
         <field name="res_model">prom.project</field>
         <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="project_action_form_new" model="ir.actions.act_window">
+        <field name="name">project_new</field>
+        <field name="res_model">prom.project</field>
+        <field name="view_mode">form</field>
+        <field name="view_type">form</field>
+        <field name="target">current</field>
+
     </record>
 
 </odoo>

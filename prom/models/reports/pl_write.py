@@ -81,14 +81,6 @@ class pl_write(report_writer):
             res_x = payment_month_ids.filtered(lambda r: r.year == q['year'] and r.payment_quarter == q['quarter'])
             for x in res_x:
                 obligations = self.get_obligations(passport,x,False)
-                # obligations = []
-                # for obligation in passport.obligation_ids.filtered(lambda p: p.obligation_type_money_id == False):
-                #     obligation_date =  fields.Datetime.from_string(obligation.obligation_date)
-                #     obligations.append({
-                #         'name':obligation.obligation_type_id.name,
-                #         'price': (obligation.price * obligation.count) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
-                #     })
-
                 sub_sales_of_goods = []
                 for sub_project in r.sub_project_ids:
                     sub_passport = sub_project.passport_ids.filtered(lambda s: s.is_actual == True)
@@ -97,7 +89,7 @@ class pl_write(report_writer):
                             'r':sub_project,
                             'passport':sub_passport,
                             'sale_of_goods':(sub_passport.price_rub_date_sign_wonds or 0) if (date_of_signing and date_of_signing.month == x.month and date_of_signing.year == x.year) else 0,
-                            'name':u"Заказчик: {}-{}/Исполнитель: {}-{}. Номенклатура: {}".format(sub_project.customer_company_id.name,sub_project.customer_company_id.vat,sub_project.contractor_company_id.name,sub_project.contractor_company_id.vat, ', '.join([product.product_item_id.name for product in passport.product_ids]))
+                            'name':u"Заказчик: {}-{}/Исполнитель: {}-{}. Номенклатура: {}".format(sub_project.customer_company_id.name,sub_project.customer_company_id.vat,sub_project.contractor_company_id.name,sub_project.contractor_company_id.vat, ', '.join([product.product_item_id.name for product in sub_passport.product_ids]))
                         })
 
                 v = {
@@ -155,20 +147,20 @@ class pl_write(report_writer):
             self.render_payment_labels(payment_quarters)
 
 
-        self.compute_row(payment_quarters,u'Выручка от продажи товаров, работ, услуг','sale_of_goods')
+        self.compute_row(payment_quarters,u'Выручка от продажи товаров, работ, услуг','sale_of_goods',style_name = 'grennCell',is_name_style=True)
                 
 
         value = u"Покупатель: {}-{}/Поставщик: {}-{}. Номенклатура: {}".format(r.customer_company_id.name,r.customer_company_id.vat,r.contractor_company_id.name,r.contractor_company_id.vat, ', '.join([product.product_item_id.name for product in passport.product_ids]))
         self.compute_row(payment_quarters,value,'sale_of_goods')
         
-        self.compute_row(payment_quarters,'Покупная/производственная  стоимость  товаров, работ, услуг','summ_sub_sales_of_goods')
+        self.compute_row(payment_quarters,'Покупная/производственная  стоимость  товаров, работ, услуг','summ_sub_sales_of_goods',style_name = 'grennCell',is_name_style=True)
         
         
         self.master_cell = 1
         self.compute_row(payment_quarters,'','sub_sales_of_goods')
 
         self.master_cell = 1
-        self.compute_row(payment_quarters,'Обязательства типа  Доходы/Расходы','summ_obligations')
+        self.compute_row(payment_quarters,'Обязательства типа  Доходы/Расходы','summ_obligations',style_name = 'grennCell',is_name_style=True)
         self.master_cell = 1
         self.compute_row(payment_quarters,'','obligations')
         self.master_cell = 1
@@ -180,16 +172,11 @@ class pl_write(report_writer):
                 for sybpodryad in subpodryads:
                     self.render_block(sybpodryad,sub=True)
         if sub:
-            self.compute_row(payment_quarters,u'Валовая прибыль для проектов с субподрядчиками','gross_profit')
+            self.compute_row(payment_quarters,u'Валовая прибыль для проектов с субподрядчиками','gross_profit',style_name = 'grennCell',is_name_style=True)
         else:
-            self.compute_row(payment_quarters,u'Валовая прибыль для основного проекта','root_gross_profit')
-            # self.compute_row(payment_quarters,u'Рентабельность, % для основного проекта','profitability')
-            
-
+            self.compute_row(payment_quarters,u'Валовая прибыль для основного проекта','root_gross_profit',style_name = 'grennCell',is_name_style=True)
+            self.compute_row(payment_quarters,u'Рентабельность, % для основного проекта','profitability',style_name = 'grennCell',is_name_style=True)
         self.ws.column_dimensions[get_column_letter(1)].width = 72
-
-
-
 
     def get_root_gross_profit(self,m,x_index,m_index):
         v = m["gross_profit"] 
@@ -198,57 +185,61 @@ class pl_write(report_writer):
             print s[x_index]["months"][m_index]["gross_profit"]
         return v
 
-    def compute_row(self,payment_quarters,label,root,ob = False,sub_m = False,sub_quar = False,sub_podryad=False,r = False):
+    def compute_row(self,payment_quarters,label,root,ob = False,sub_m = False,sub_quar = False,sub_podryad=False,r = False, style_name = False, is_name_style = False):
         plan = 0
         row = self.master_row
-        self.cell_in_row(label,value_style=self.label_style())
+        self.cell_in_row(label,value_style=self.label_style(),style_name = style_name if is_name_style else False)
         x_index=0
         for x in payment_quarters:
-            # months columns
             m_index = 0
             for m in x["months"]: 
                 if root in ["sale_of_goods","summ_sub_sales_of_goods", "summ_obligations","gross_profit"]:
-                    self.cell_in_row(m[root],f_row = row)
-                    self.cell_in_row(0,f_row = row)
+                    self.cell_in_row(m[root],f_row = row,style_name = style_name)
+                    self.cell_in_row(0,f_row = row,style_name = style_name)
                 elif root in ["root_gross_profit"]:
-                    self.cell_in_row(self.get_root_gross_profit(m,x_index,m_index),f_row = row)
-                    self.cell_in_row(0,f_row = row)
+                    self.cell_in_row(self.get_root_gross_profit(m,x_index,m_index),f_row = row,style_name = style_name)
+                    self.cell_in_row(0,f_row = row,style_name = style_name)
                 elif root in ["profitability"]:
-                    self.cell_in_row(self.get_root_gross_profit(m,x_index,m_index)/(m["gross_profit"] or 1) * 100,f_row = row)
-                    self.cell_in_row(0,f_row = row)
+                    self.cell_in_row((self.get_root_gross_profit(m,x_index,m_index) / m["sale_of_goods"] * 100) if m["sale_of_goods"] else 0,f_row = row,style_name = style_name)
+                    self.cell_in_row(0,f_row = row,style_name = style_name)
                 elif root == "sub_sales_of_goods":
                     row_index = 0
                     cell = self.master_cell
                     for pod in m['sub_sales_of_goods']:
-                        self.cell_in_row(pod['name'],f_cell =1, f_row = row +row_index )
-                        self.cell_in_row(pod['sale_of_goods'],f_cell = cell, f_row = row +row_index )
-                        self.cell_in_row(0,f_cell = cell + 1, f_row = row+row_index)
+                        self.cell_in_row(pod['name'],f_cell =1, f_row = row +row_index ,style_name = style_name)
+                        self.cell_in_row(pod['sale_of_goods'],f_cell = cell, f_row = row +row_index ,style_name = style_name)
+                        self.cell_in_row(0,f_cell = cell + 1, f_row = row+row_index,style_name = style_name)
                         row_index+=1
                     self.master_cell  = cell +  2
                 elif root == "obligations":
                     row_index = 0
                     cell = self.master_cell
                     for ob in m['obligations']:
-                        self.cell_in_row(ob['name'],f_cell =1, f_row = row +row_index )
-                        self.cell_in_row(ob['price'],f_cell = cell, f_row = row +row_index )
-                        self.cell_in_row(0,f_cell = cell + 1, f_row = row+row_index)
+                        self.cell_in_row(ob['name'],f_cell =1, f_row = row + row_index ,style_name = style_name)
+                        self.cell_in_row(ob['price'],f_cell = cell, f_row = row +row_index ,style_name = style_name)
+                        self.cell_in_row(0,f_cell = cell + 1, f_row = row+row_index,style_name = style_name)
                         row_index+=1
                     self.master_cell  = cell + 2
                 m_index+=1
 
             # quartal columns
             if root in ["sale_of_goods","summ_sub_sales_of_goods", "summ_obligations","gross_profit"]:
-                self.cell_in_row(x["quarters_summ_" + root],f_row = row)
-                self.cell_in_row(0,f_row = row)
+                self.cell_in_row(x["quarters_summ_" + root],f_row = row,style_name = style_name)
+                self.cell_in_row(0,f_row = row,style_name = style_name)
             elif root in ["root_gross_profit"]:
                 v = x["quarters_summ_gross_profit"] 
                 for s in self.sub_payments:
                     v+= s[x_index]["quarters_summ_gross_profit"]
-                self.cell_in_row(v,f_row = row)
-                self.cell_in_row(0,f_row = row)
+                self.cell_in_row(v,f_row = row,style_name = style_name)
+                self.cell_in_row(0,f_row = row,style_name = style_name)
             elif root in ["profitability"]:
-                self.cell_in_row(0,f_row = row)
-                self.cell_in_row(0,f_row = row)
+                       
+                v = x["quarters_summ_gross_profit"] 
+                for s in self.sub_payments:
+                    v+= s[x_index]["quarters_summ_gross_profit"]
+
+                self.cell_in_row((v / x["quarters_summ_sale_of_goods"] * 100) if x["quarters_summ_sale_of_goods"] else 0,f_row = row,style_name = style_name)
+                self.cell_in_row(0,f_row = row,style_name = style_name)
             elif root == "sub_sales_of_goods":
                 row_index = 0
                 cell = self.master_cell
@@ -257,8 +248,8 @@ class pl_write(report_writer):
                     value = 0
                     for m in x["months"]:
                         value+= m['sub_sales_of_goods'][row_index]["sale_of_goods"]
-                    self.cell_in_row(value,f_cell = cell,f_row = row+row_index)
-                    self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index)
+                    self.cell_in_row(value,f_cell = cell,f_row = row+row_index,style_name = style_name)
+                    self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index,style_name = style_name)
                     row_index+=1
                 self.master_cell  = cell +  2
             elif root == "obligations":
@@ -269,24 +260,26 @@ class pl_write(report_writer):
                     value = 0
                     for m in x["months"]:
                         value+= m['obligations'][row_index]["price"]
-                    self.cell_in_row(value,f_cell = cell,f_row = row+row_index)
-                    self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index)
+                    self.cell_in_row(value,f_cell = cell,f_row = row+row_index,style_name = style_name)
+                    self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index,style_name = style_name)
                     row_index+=1
                 self.master_cell  = cell +  2
             x_index += 1
         # summ quartal columns
         if root in ["sale_of_goods","summ_sub_sales_of_goods", "summ_obligations","gross_profit"]:
-            self.cell_in_row(sum([q["quarters_summ_" + root] for q in payment_quarters]),f_row = row)
-            self.cell_in_row(0,f_row = row)
+            self.cell_in_row(sum([q["quarters_summ_" + root] for q in payment_quarters]),f_row = row,style_name = style_name)
+            self.cell_in_row(0,f_row = row,style_name = style_name)
         elif root in ["root_gross_profit"]:
             v = sum([q["quarters_summ_gross_profit"] for q in payment_quarters])
-            # v+= sum(sub_p["quarters_summ_gross_profit"]  for sub_p in self.sub_payments)
-            self.cell_in_row(v,f_row = row)
-            self.cell_in_row(0,f_row = row)
+            self.cell_in_row(v,f_row = row,style_name = style_name)
+            self.cell_in_row(0,f_row = row,style_name = style_name)
         elif root in ["profitability"]:
-            self.cell_in_row(0,f_row = row)
-            self.cell_in_row(0,f_row = row)
+            sales = sum([q["quarters_summ_sale_of_goods"] for q in payment_quarters])
+            v = sum([q["quarters_summ_gross_profit"] for q in payment_quarters])
+            self.cell_in_row((v / sales * 100) if sales else 0,f_row = row,style_name = style_name)
+            self.cell_in_row(0,f_row = row,style_name = style_name)
         elif root == "sub_sales_of_goods":
+        
             row_index = 0
             cell = self.master_cell
             q = payment_quarters[0]["months"]
@@ -295,8 +288,8 @@ class pl_write(report_writer):
                 for q in payment_quarters:
                     for m in q["months"]:
                         value+= m['sub_sales_of_goods'][row_index]["sale_of_goods"]
-                self.cell_in_row(value,f_cell = cell,f_row = row+row_index)
-                self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index)
+                self.cell_in_row(value,f_cell = cell,f_row = row+row_index,style_name = style_name)
+                self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index,style_name = style_name)
                 row_index+=1
             self.master_cell = cell +  2
             self.master_row += row_index-1
@@ -309,8 +302,8 @@ class pl_write(report_writer):
                 for q in payment_quarters:
                     for m in q["months"]:
                         value+= m['obligations'][row_index]["price"]
-                self.cell_in_row(value,f_cell = cell,f_row = row+row_index)
-                self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index)
+                self.cell_in_row(value,f_cell = cell,f_row = row+row_index,style_name = style_name)
+                self.cell_in_row(0,f_cell = cell + 1,f_row = row+row_index,style_name = style_name)
                 row_index+=1
             self.master_cell  = cell +  2
             self.master_row += row_index-1

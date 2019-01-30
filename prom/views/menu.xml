@@ -2,6 +2,7 @@
 <odoo>
 	<menuitem id="menu_project_root" name="Проекты" sequence="10"/>
 	<menuitem id="menu_project" name="Проекты" parent = "menu_project_root" action="project_action_form" sequence="10"/>
+	<menuitem id="menu_project_new" name="Новый проект" parent = "menu_project_root" action="project_action_form_new" sequence="12" groups="prom.group_manager,group_chief_accountant"/>
 	<menuitem id="menu_passport" name="Паспорта сделок" parent = "menu_project_root" action="passport_action_form" sequence="20"/>
 	<menuitem id="menu_product_root" name="Типы товаров и услуг" sequence="20"/>
 	<menuitem id="menu_obligation_type" parent="menu_product_root" name="obligation_type" action="obligation_type_action_form" sequence="10"/>

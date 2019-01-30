@@ -22,12 +22,16 @@ class rp_write(report_writer):
         passport = r.passport_ids.filtered(lambda r: r.is_actual == True)
         if len(passport) > 1:
             raise UserError(u'Больше 1 актуального паспорта.')
+            
+        if r.kind_podryad == "main":
+            self.label_value(u"БЮДЖЕТ ПРОЕКТА","")
+        else:
+            self.label_value(u"Продажа","",style_name = 'grennCell')
 
-        self.label_value(u"БЮДЖЕТ ПРОЕКТА" if r.kind_podryad == "main" else "Продажа","")
         self.label_value(u"Проект",r.name)
         self.label_value(u"Ответственный менеджер",r.manager_user_id.name)
         self.label_value(u"Исполнитель по проекту",r.contractor_company_id.name)
-        self.label_value(u"Заказчик менеджер",r.customer_company_id.name)
+        self.label_value(u"Заказчик",r.customer_company_id.name)
         if passport: 
             self.label_value(u"Договор",passport.contract_number)
             self.label_value(u"Спецификация",passport.specification_number)
@@ -79,18 +83,7 @@ class rp_write(report_writer):
                 (passport.fact_summ_cur_rub_date_podpis,self.value_style(),),
                 (passport.fact_payment_date,self.value_style(),)])
             self.label_value(u"Вид расчетов","наличный" if passport.pay_kind == "cash" else "безналичный")
-        
-        # for col in self.ws.columns:
-        #     max_length = 0
-        #     column = col[0].column # Get the column name
-        #     for cell in col:
-        #         try: # Necessary to avoid error on empty cells
-        #             if len(str(cell.value)) > max_length:
-        #                 max_length = len(cell.value)
-        #         except:
-        #             pass
-        #     adjusted_width = (max_length + 2) * 1.2
-        #     self.ws.column_dimensions[column].width = adjusted_width
+
         self.ws.column_dimensions[get_column_letter(self.master_cell)].width = 52
         self.ws.column_dimensions[get_column_letter(self.master_cell+1)].width = 25
         self.ws.column_dimensions[get_column_letter(self.master_cell+2)].width = 25
@@ -102,8 +95,9 @@ class rp_write(report_writer):
         if not r: return 
         self.render_block(r)
         for s in r.sub_project_ids:
-            self.master_row=1
-            self.master_cell = self.master_cell + self.max_cell-1
-            self.max_cell = 1
+            # self.master_row=1
+            # self.master_cell += self.max_cell-1
+            self.master_cell = 1
+            # self.max_cell = 1
             self.render(s)
         return self.ws
