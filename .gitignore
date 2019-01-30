@@ -1,0 +1,3 @@
+*.pyc
+addons/field_image_preview/__init__.py
+addons/field_image_preview/
