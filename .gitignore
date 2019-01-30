@@ -1,3 +1,10 @@
 *.pyc
 addons/field_image_preview/__init__.py
 addons/field_image_preview/
+prom/models/reports/rp_write.pyc
+prom/models/obligation.pyc
+prom/models/passport.pyc
+prom/models/project.pyc
+prom/models/reports/cf_write.pyc
+prom/models/reports/pl_write.pyc
+prom/models/reports/report_writer.pyc
