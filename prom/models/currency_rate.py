@@ -26,21 +26,30 @@ class currency_rate(models.Model):
         
         _logger.info('End of the currency rate update cron')
     
+    
+
+    @api.model
+    def refresh_currency_for_date(self,parse_date):
+        self.refresh_currency(parse_date)
+
     @api.multi
-    def refresh_currency(self):
+    def refresh_currency(self,parse_date=False):
         import urllib
         import datetime
         from xml.etree import ElementTree as ET
         """Refresh the currencies rates !!for all companies now"""     
         """Получает значения доллара и евро в рублях на время запуска. Данные берутся с сайта ЦБР. Возвращает значение доллара в рублях, евро в рублях, дату."""
     
+        if not parse_date:
+            parse_date = datetime.date.today()
+        
         id_dollar = "R01235"
         id_evro = "R01239"
-        url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + datetime.date.today().strftime('%d/%m/%Y')
+        url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + parse_date.strftime('%d/%m/%Y')
 
         valuta = ET.parse(urllib.urlopen(url))
     
-        for  line in valuta.findall('Valute'):
+        for line in valuta.findall('Valute'):
             id_v = line.get('ID')
             if id_v == id_dollar:
                 rub_dollar = line.find('Value').text

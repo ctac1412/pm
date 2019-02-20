@@ -22,25 +22,25 @@
                 </header>
 
                 <sheet invisible="1">
-                <field name="parent_project_id"/>
-                <button string="update_payment_month_ids" name="update_payment_month_ids" type="object" class="btn" />
-                <field name="payment_month_ids"/>
+                    <field name="parent_project_id"/>
+                    <button string="update_payment_month_ids" name="update_payment_month_ids" type="object" class="btn" />
+                    <field name="payment_month_ids"/>
                 </sheet>
 
 
                 <sheet>
                     <group string="">
 
-                        
+
                         <field name="project_id" attrs="{'readonly':[('project_id','!=',False)]}"/>
                         <field name="parent_passport_id" readonly="1"/>
-                        
+
                         <label for="child_passport_id" string="child_passport_id"/>
                         <div class="o_row">
                             <field name="child_passport_id" readonly="1" attrs="{'invisible': [('child_passport_id','=',False)]}"/>
                             <button name="add_sub_passport" string="Копия паспорта" type="object" class="oe_link oe_left" attrs="{'invisible': [('child_passport_id','!=',False)]}"/>
                         </div>
-                        
+
                         <field name="is_actual"/>
                         <field name="is_export"/>
                         <field name="kp_cancel_reason" attrs="{'invisible':[('state','not in',['kp_cancel'])]}"/>
@@ -62,82 +62,82 @@
                     <group>
 
 
-                    <label for="group_commercial_department_v_p_id" string="Коммерческий отдел" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_commercial_department_v_p_id"  readonly="1" attrs="{'invisible':[('group_commercial_department_is_validate','=',False)]}" />
-                        <field name="group_commercial_department_is_validate" invisible="1"/>
-                        <field name="group_commercial_department_validate_time" readonly="1" attrs="{'invisible':[('group_commercial_department_is_validate','=',False)]}"/>
+                        <label for="group_commercial_department_v_p_id" string="Коммерческий отдел" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_commercial_department_v_p_id" readonly="1" attrs="{'invisible':[('group_commercial_department_is_validate','=',False)]}" />
+                            <field name="group_commercial_department_is_validate" invisible="1"/>
+                            <field name="group_commercial_department_validate_time" readonly="1" attrs="{'invisible':[('group_commercial_department_is_validate','=',False)]}"/>
 
 
-                        <button groups="prom.group_commercial_department" attrs="{'invisible':[('group_commercial_department_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_commercial_department_v_p_id}"/>
-                        <button groups="prom.group_commercial_department" attrs="{'invisible':[('group_commercial_department_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_commercial_department_v_p_id}"/>
-                    </div>
+                            <button groups="prom.group_commercial_department" attrs="{'invisible':[('group_commercial_department_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_commercial_department_v_p_id}"/>
+                            <button groups="prom.group_commercial_department" attrs="{'invisible':[('group_commercial_department_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_commercial_department_v_p_id}"/>
+                        </div>
 
-                    <label for="group_support_department_v_p_id" string="Техническая служба"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_support_department_v_p_id" readonly="1" attrs="{'invisible':[('group_support_department_is_validate','=',False)]}" />
-                        <field name="group_support_department_is_validate" invisible="1"/>
-                        <field name="group_support_department_validate_time" readonly="1" attrs="{'invisible':[('group_support_department_is_validate','=',False)]}" />
+                        <label for="group_support_department_v_p_id" string="Техническая служба" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_support_department_v_p_id" readonly="1" attrs="{'invisible':[('group_support_department_is_validate','=',False)]}" />
+                            <field name="group_support_department_is_validate" invisible="1"/>
+                            <field name="group_support_department_validate_time" readonly="1" attrs="{'invisible':[('group_support_department_is_validate','=',False)]}" />
 
-                        <button groups="prom.group_support_department" attrs="{'invisible':[('group_support_department_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_support_department_v_p_id}"/>
-                        <button groups="prom.group_support_department" attrs="{'invisible':[('group_support_department_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_support_department_v_p_id}"/>
-                    </div>
+                            <button groups="prom.group_support_department" attrs="{'invisible':[('group_support_department_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_support_department_v_p_id}"/>
+                            <button groups="prom.group_support_department" attrs="{'invisible':[('group_support_department_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_support_department_v_p_id}"/>
+                        </div>
 
-                    <label for="group_logistics_service_v_p_id" string="Служба логистики"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_logistics_service_v_p_id" readonly="1" attrs="{'invisible':[('group_logistics_service_is_validate','=',False)]}" />
-                        <field name="group_logistics_service_is_validate" invisible="1"/>
-                        <field name="group_logistics_service_validate_time" readonly="1" attrs="{'invisible':[('group_logistics_service_is_validate','=',False)]}"/>
+                        <label for="group_logistics_service_v_p_id" string="Служба логистики" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_logistics_service_v_p_id" readonly="1" attrs="{'invisible':[('group_logistics_service_is_validate','=',False)]}" />
+                            <field name="group_logistics_service_is_validate" invisible="1"/>
+                            <field name="group_logistics_service_validate_time" readonly="1" attrs="{'invisible':[('group_logistics_service_is_validate','=',False)]}"/>
 
-                        <button groups="prom.group_logistics_service" attrs="{'invisible':[('group_logistics_service_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_logistics_service_v_p_id}"/>
-                        <button groups="prom.group_logistics_service" attrs="{'invisible':[('group_logistics_service_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_logistics_service_v_p_id}"/>
-                    </div>
+                            <button groups="prom.group_logistics_service" attrs="{'invisible':[('group_logistics_service_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_logistics_service_v_p_id}"/>
+                            <button groups="prom.group_logistics_service" attrs="{'invisible':[('group_logistics_service_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_logistics_service_v_p_id}"/>
+                        </div>
 
-                    <label for="group_chief_accountant_v_p_id" string="Главный бухгалтер"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"   attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_chief_accountant_v_p_id" readonly="1" attrs="{'invisible':[('group_chief_accountant_is_validate','=',False)]}"/>
-                        <field name="group_chief_accountant_is_validate" invisible="1"/>
-                        <field name="group_chief_accountant_validate_time" readonly="1" attrs="{'invisible':[('group_chief_accountant_is_validate','=',False)]}"/>
+                        <label for="group_chief_accountant_v_p_id" string="Главный бухгалтер" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_chief_accountant_v_p_id" readonly="1" attrs="{'invisible':[('group_chief_accountant_is_validate','=',False)]}"/>
+                            <field name="group_chief_accountant_is_validate" invisible="1"/>
+                            <field name="group_chief_accountant_validate_time" readonly="1" attrs="{'invisible':[('group_chief_accountant_is_validate','=',False)]}"/>
 
-                        <button groups="prom.group_chief_accountant" attrs="{'invisible':[('group_chief_accountant_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_chief_accountant_v_p_id}"/>
-                        <button groups="prom.group_chief_accountant" attrs="{'invisible':[('group_chief_accountant_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_chief_accountant_v_p_id}"/>
-                    </div>
+                            <button groups="prom.group_chief_accountant" attrs="{'invisible':[('group_chief_accountant_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_chief_accountant_v_p_id}"/>
+                            <button groups="prom.group_chief_accountant" attrs="{'invisible':[('group_chief_accountant_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_chief_accountant_v_p_id}"/>
+                        </div>
 
-                    <label for="group_financial_director_v_p_id" string="Финансовый директор"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_financial_director_v_p_id" readonly="1" attrs="{'invisible':[('group_financial_director_is_validate','=',False)]}"/>
-                        <field name="group_financial_director_is_validate" invisible="1"/>
-                        <field name="group_financial_director_validate_time" readonly="1" attrs="{'invisible':[('group_financial_director_is_validate','=',False)]}"/>
+                        <label for="group_financial_director_v_p_id" string="Финансовый директор" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_financial_director_v_p_id" readonly="1" attrs="{'invisible':[('group_financial_director_is_validate','=',False)]}"/>
+                            <field name="group_financial_director_is_validate" invisible="1"/>
+                            <field name="group_financial_director_validate_time" readonly="1" attrs="{'invisible':[('group_financial_director_is_validate','=',False)]}"/>
 
-                        <button groups="prom.group_financial_director" attrs="{'invisible':[('group_financial_director_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_financial_director_v_p_id}"/>
-                        <button groups="prom.group_financial_director" attrs="{'invisible':[('group_financial_director_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_financial_director_v_p_id}"/>
-                    </div>
+                            <button groups="prom.group_financial_director" attrs="{'invisible':[('group_financial_director_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_financial_director_v_p_id}"/>
+                            <button groups="prom.group_financial_director" attrs="{'invisible':[('group_financial_director_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_financial_director_v_p_id}"/>
+                        </div>
 
-                    <label for="group_legal_service_v_p_id" string="Юридическая служба"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_legal_service_v_p_id" readonly="1" attrs="{'invisible':[('group_legal_service_is_validate','=',False)]}"/>
-                        <field name="group_legal_service_is_validate" invisible="1"/>
-                        <field name="group_legal_service_validate_time" readonly="1" attrs="{'invisible':[('group_legal_service_is_validate','=',False)]}"/>
+                        <label for="group_legal_service_v_p_id" string="Юридическая служба" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_legal_service_v_p_id" readonly="1" attrs="{'invisible':[('group_legal_service_is_validate','=',False)]}"/>
+                            <field name="group_legal_service_is_validate" invisible="1"/>
+                            <field name="group_legal_service_validate_time" readonly="1" attrs="{'invisible':[('group_legal_service_is_validate','=',False)]}"/>
 
-                        <button groups="prom.group_legal_service" attrs="{'invisible':[('group_legal_service_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_legal_service_v_p_id}"/>
-                        <button groups="prom.group_legal_service" attrs="{'invisible':[('group_legal_service_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_legal_service_v_p_id}"/>
-                    </div>
+                            <button groups="prom.group_legal_service" attrs="{'invisible':[('group_legal_service_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_legal_service_v_p_id}"/>
+                            <button groups="prom.group_legal_service" attrs="{'invisible':[('group_legal_service_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_legal_service_v_p_id}"/>
+                        </div>
 
-                    <label for="group_security_service_v_p_id" string="Служба безопасности"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
-                    <div class="o_row"  attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
-                        <field name="group_security_service_v_p_id" readonly="1" attrs="{'invisible':[('group_security_service_is_validate','=',False)]}"/>
-                        <field name="group_security_service_is_validate" invisible="1"/>
-                        <field name="group_security_service_validate_time" readonly="1" attrs="{'invisible':[('group_security_service_is_validate','=',False)]}"/>
-                        
-                        <button groups="prom.group_security_service" attrs="{'invisible':[('group_security_service_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_security_service_v_p_id}"/>
-                        <button groups="prom.group_security_service" attrs="{'invisible':[('group_security_service_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_security_service_v_p_id}"/>
-                    </div>
+                        <label for="group_security_service_v_p_id" string="Служба безопасности" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}"/>
+                        <div class="o_row" attrs="{'invisible':[('state','in',['in_work','kp_cancel'])]}">
+                            <field name="group_security_service_v_p_id" readonly="1" attrs="{'invisible':[('group_security_service_is_validate','=',False)]}"/>
+                            <field name="group_security_service_is_validate" invisible="1"/>
+                            <field name="group_security_service_validate_time" readonly="1" attrs="{'invisible':[('group_security_service_is_validate','=',False)]}"/>
+
+                            <button groups="prom.group_security_service" attrs="{'invisible':[('group_security_service_is_validate','=',True)]}" type="object" name="validate_group_manager" string="Согласовать" class="oe_link" context="{'group':group_security_service_v_p_id}"/>
+                            <button groups="prom.group_security_service" attrs="{'invisible':[('group_security_service_is_validate','=',False)]}" type="object" name="un_validate_group_manager" string="Отменить" class="oe_link" context="{'group':group_security_service_v_p_id}"/>
+                        </div>
                     </group>
 
-                   
+
                 </sheet>
                 <sheet>
-                    <group  string='Информация о договоре.'>
+                    <group string='Информация о договоре.'>
                         <group>
                             <field name="currency_id"/>
                             <field name="date_of_signing" required="1" />
@@ -166,10 +166,10 @@
 
                 <sheet>
                     <group string='Товары и услуги'>
-                        
-                        
+
+
                         <field name="product_ids" nolabel="1" context="{'default_passport_id':id}"/>
-                        <!-- <field name="product_ids" nolabel="1" domain="('project_id', '=',project_id),('project_id', '=',parent_project_id)]"  context="{'default_passport_id':id}"/> -->
+                        <!-- <field name="product_ids" nolabel="1" domain="('project_id', '=',project_id),('project_id', '=',parent_project_id)]" context="{'default_passport_id':id}"/> -->
                     </group>
                     <group string='Обязательства'>
                         <field name="obligation_ids" widget="one2many_list" nolabel="1"/>
@@ -181,13 +181,13 @@
                         <group >
                             <field name="date_of_pr_start" required="1"/>
                             <field name="production_days"/>
-                            <field name="delivery_days"/>
                             <field name="delivery_days_to_rf"/>
+                            <field name="delivery_days"/>
                             <field name="start_up_period"/>
                             <field name="warranty_period"/>
                             <field name="delivery_time"/>
-                            
-                            
+
+
 
                         </group>
                         <group>
@@ -203,8 +203,8 @@
                 </sheet>
                 <sheet groups="prom.group_financial_director,prom.group_chief_accountant">
                     <group string='Расчеты по договору'>
-                               
-                               <field name="main_summmode"/>
+
+                        <field name="main_summmode"/>
                     </group>
                     <notebook>
                         <page string="Аванс">
@@ -215,7 +215,7 @@
                                 <group string="%">
                                     <field name="avance_contract_part_pr" />
                                 </group>
-                                <group string="$">
+                                <group string="Цена">
                                     <field name="avance_summ_cur_contract" />
                                     <field name="avance_summ_cur_rub_date_podpis"/>
                                     <field name="avance_contract_part_cur"/>
@@ -236,7 +236,7 @@
                                 <group string="%">
                                     <field name="message_contract_part_pr"/>
                                 </group>
-                                <group string="$">
+                                <group string="Цена">
                                     <field name="message_summ_cur_contract"/>
                                     <field name="message_summ_cur_rub_date_podpis"/>
                                     <field name="message_contract_part_cur"/>
@@ -257,7 +257,7 @@
                                 <group string="%">
                                     <field name="endpnr_contract_part_pr"/>
                                 </group>
-                                <group string="$">
+                                <group string="Цена">
                                     <field name="endpnr_summ_cur_contract"/>
                                     <field name="endpnr_summ_cur_rub_date_podpis"/>
                                     <field name="endpnr_contract_part_cur"/>
@@ -278,7 +278,7 @@
                                 <group string="%">
                                     <field name="fact_contract_part_pr"/>
                                 </group>
-                                <group string="$">
+                                <group string="Цена">
                                     <field name="fact_summ_cur_contract"/>
                                     <field name="fact_summ_cur_rub_date_podpis"/>
                                     <field name="fact_contract_part_cur"/>
@@ -295,27 +295,52 @@
                 </sheet>
                 <sheet>
                     <group string='Обеспечение по договору'>
-                        <group >
-                            <field name="contract_guarantee_type"/>
-                            <field name="contract_guarantee_size"/>
-                            <field name="commission_bg"/>
-                            <field name="post_peripd_bg"/>
-                            <field name="post_peripd_ds"/>
-                            <field name="post_period_op"/>
-                        </group>
-                        <group>
-                            <field name="cost_for_us"/>
-                            <field name="guarantee"/>
-                            <field name="contract_period"/>
-                            <field name="guarantee_period"/>
-                            <field name="refund_period"/>
-                            <field name="refund"/>
-                            <field name="contract_enforcement"/>
-                        </group>
+                        
+                            <field name="agreed_currency"/>
+                            <field name="post_period_bg"/>
+                            <field name="warranty_period_bg"/>
+                            <field name="is_include_report"/>
+                        
                     </group>
-
-
-                    <group string='Движение денежных средств'>
+                        <notebook>
+                            <page string="Возврат авансового платежа">
+                                <group>
+                                    <field name="contract_guarantee_size"/>
+                                    <field name="guarantee_sum_rf"/>
+                                    <field name="guarantee_period_bg"/>
+                                    <field name="commission_bg"/>
+                                    <field name="commission_bg_rub"/>
+                                </group>
+                            </page>
+                            <page string="Исполнение договора">
+                                <group>
+                                    <field name="contract_guarantee_size_dogovor"/>
+                                    <field name="guarantee_sum_rf_dogovor"/>
+                                    <field name="guarantee_period_bg_dogovor"/>
+                                    <field name="commission_bg_dogovor"/>
+                                    <field name="commission_bg_rub_dogovor"/>
+                                </group>
+                            </page>
+                            <page string="Гарантийный период">
+                                <group>
+                                    <field name="contract_guarantee_size_garanty"/>
+                                    <field name="guarantee_sum_rf_garanty"/>
+                                    <field name="guarantee_period_bg_garanty"/>
+                                    <field name="commission_bg_garanty"/>
+                                    <field name="commission_bg_rub_garanty"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    <group string='Обеспечительный платеж'>
+                            <field name="contract_guarantee_sum"/>
+                            <field name="contract_guarantee_sum_rf"/>
+                            <field name="contract_guarantee_size_ds"/>
+                            <field name="contract_guarantee_size_rub"/>
+                            <field name="period_ds_delivery"/>
+                            <field name="period_ds_warranty"/>
+                    </group>
+                    
+                    <group string='Движение денежных средств' groups='prom.group_chief_accountant,prom.group_financial_director'>
 
                         <field name="finn_transaction_ids" nolabel='1' context="{'default_passport_id':id, 'tree_view_ref' : 'prom.finn_transaction_view_tree_min'}"/>
                     </group>
@@ -361,10 +386,7 @@
                 <field name="warranty_period"/>
                 <field name="date_of_warranty_end"/>
                 <field name="date_of_pr_start"/>
-                <field name="contract_guarantee_type"/>
-                <field name="refund"/>
-                <field name="guarantee"/>
-                <field name="cost_for_us"/>
+
             </tree>
         </field>
     </record>

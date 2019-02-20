@@ -361,6 +361,11 @@ class passport(models.Model):
         if int(cur_id) == -1 or cur_id.name == 'RUB':
             return 1
         res = self.env['res.currency.rate'].search([('currency_id', '=', cur_id.id),('name', '<=', date)], limit=1, order='name DESC')
+        
+        if not res:
+            self.env['prom.currency_rate'].refresh_currency_for_date(fields.Datetime.from_string(date))
+            res = self.env['res.currency.rate'].search([('currency_id', '=', cur_id.id),('name', '<=', date)], limit=1, order='name DESC')
+
         if not res:
             print '---',cur_id,date
             raise UserError(_('Cant find current rate:') + str(cur_id.name) + ' to date - ' + str(date))
@@ -616,7 +621,15 @@ class passport(models.Model):
                 r.date_of_warranty_end = False
 
     date_of_finstart= fields.Date(compute='compute_date_of_finstart',store=True)
-    delivery_time = fields.Integer()
+
+    delivery_time = fields.Integer(compute='_delivery_time',store=True)
+
+    @api.onchange('production_days','delivery_days_to_rf','delivery_days','start_up_period')
+    @api.depends('production_days','delivery_days_to_rf','delivery_days','start_up_period')
+    def _delivery_time(self):
+        for r in self:
+            r.delivery_time = r.production_days + r.delivery_days_to_rf + r.delivery_days + r.start_up_period
+
     @api.onchange('date_of_start','delivery_time')
     @api.depends('date_of_start','delivery_time')
     def compute_date_of_finstart(self):
@@ -639,7 +652,9 @@ class passport(models.Model):
 
     # Аванс 
     avance_contract_part_pr = fields.Float()
+
     avance_summ_cur_contract = fields.Float()
+    avance_summ_cur_contract_rf = fields.Float()
 
     avance_payment_delay = fields.Integer()
     avance_terms_of_payment = fields.Char()
@@ -687,8 +702,7 @@ class passport(models.Model):
     @api.onchange('avance_summ_cur_contract','price_currency_id_date_sign')
     @api.depends('avance_summ_cur_contract','price_currency_id_date_sign')
     def onchange_avance_summ_cur_contract(self):
-        for r in self:                 
-            # if r.avance_summmode == 'price' and r.avance_summ_cur_contract and r.price_currency_id_date_sign:
+        for r in self:
             if r.main_summmode == 'price' and r.avance_summ_cur_contract and r.price_currency_id_date_sign:
                 r.avance_contract_part_pr =  r.avance_summ_cur_contract * 100 /   r.price_currency_id_date_sign
 
@@ -901,85 +915,147 @@ class passport(models.Model):
             r.fact_summ_cur_contract = False
 
     # Обеспечение по договору
-    contract_guarantee_type  = fields.Selection(
-        selection=[
-                ('bank_guarantees', 'bank_guarantees'),
-                ('money', 'money'),
-        ],
-    )
+   
+    agreed_currency = fields.Float(string="Согласованный курс", )
+    post_period_bg  = fields.Integer(string="Постпериод, дни", )
+    warranty_period_bg = fields.Integer(string="Гарантийный период, дни", compute='_warranty_period_bg',store=True)
+    is_include_report = fields.Boolean(string="Включать в расчеты по проекту", )
+
+    @api.depends('warranty_period')
+    @api.onchange('warranty_period')
+    def _warranty_period_bg(self):
+        for r in self:
+            r.warranty_period_bg = r.warranty_period *30.417
     
-    
+        # возврат авансового платежа 
+    contract_guarantee_size = fields.Float('Размер обеспечения,%')
+    guarantee_sum_rf = fields.Float('Гарантийная сумма в валюте РФ по согласованному курсу', store=True, compute="_guarantee_sum_rf")
 
-    contract_guarantee_size = fields.Float()
-    commission_bg = fields.Float()
-    post_peripd_bg= fields.Integer()
-    post_peripd_ds = fields.Integer()
-    post_period_op = fields.Integer()
-    refund_period = fields.Integer(compute="compute_refund_period",store=True)
-
-    @api.onchange('production_days','post_peripd_bg')
-    @api.depends('production_days','post_peripd_bg')
-    def compute_refund_period(self):
+    @api.depends('contract_guarantee_size','price_currency_id_date_sign','agreed_currency')
+    @api.onchange('contract_guarantee_size','price_currency_id_date_sign','agreed_currency')
+    def _guarantee_sum_rf(self):
         for r in self:
-            r.refund_period = r.production_days + r.post_peripd_bg
+            r.guarantee_sum_rf = (r.contract_guarantee_size * r.price_currency_id_date_sign) * r.agreed_currency / 100
 
-    refund = fields.Float(compute="compute_refund",store=True)
-    @api.onchange('contract_guarantee_type','price_currency_id_date_sign','avance_contract_part_pr','commission_bg','refund_period','contract_guarantee_size')
-    @api.depends('contract_guarantee_type','price_currency_id_date_sign','avance_contract_part_pr','commission_bg','refund_period','contract_guarantee_size')
-    def compute_refund(self):
+    guarantee_period_bg = fields.Integer('Срок действия БГ, дни', store=True, compute='_guarantee_period_bg')
+
+    @api.depends('delivery_time','post_period_bg')
+    @api.onchange('delivery_time','post_period_bg')
+    def _guarantee_period_bg(self):
         for r in self:
-            if r.contract_guarantee_type == "bank_guarantees" and r.avance_contract_part_pr and r.price_currency_id_date_sign and r.commission_bg: 
-                r.refund = r.price_currency_id_date_sign * (r.avance_contract_part_pr/100) * (r.commission_bg/100) / 12 * self.verifyFloat(r.refund_period)
-            elif r.contract_guarantee_type == "money"  and r.price_currency_id_date_sign and r.contract_guarantee_size and r.avance_contract_part_pr:
-                r.refund = r.price_currency_id_date_sign * (r.avance_contract_part_pr/100) * (r.contract_guarantee_size/100)
+            r.guarantee_period_bg = r.delivery_time + r.post_period_bg
 
-    contract_enforcement = fields.Float(compute="compute_contract_enforcement")
+    commission_bg = fields.Float('Комиссия за выпуск БГ, %')
+    commission_bg_rub = fields.Float('Комиссия за выпуск БГ, руб', store=True, compute='_commission_bg_rub')
 
-    @api.onchange('contract_guarantee_type','price_currency_id_date_sign','commission_bg','refund_period','contract_guarantee_size')
-    @api.depends('contract_guarantee_type','price_currency_id_date_sign','commission_bg','refund_period','contract_guarantee_size')
-    def compute_contract_enforcement(self):
+
+    @api.depends('guarantee_sum_rf','commission_bg','guarantee_period_bg')
+    @api.onchange('guarantee_sum_rf','commission_bg','guarantee_period_bg')
+    def _commission_bg_rub(self):
         for r in self:
-            if r.contract_guarantee_type == "bank_guarantees" and r.price_currency_id_date_sign and r.contract_guarantee_size and r.commission_bg: 
-                r.contract_enforcement = r.price_currency_id_date_sign * (r.contract_guarantee_size/100) * (r.commission_bg/100) / 12 * self.verifyFloat(r.refund_period)
-            elif r.contract_guarantee_type == "money" and r.price_currency_id_date_sign and r.contract_guarantee_size:
-                r.contract_enforcement = r.price_currency_id_date_sign * (r.contract_guarantee_size/100)
+            r.commission_bg_rub = r.guarantee_sum_rf * r.commission_bg / 365 * (r.guarantee_period_bg or 1)
+        
+        # возврат авансового платежа  
+        # 
+        # исполнение договора
 
+    contract_guarantee_size_dogovor = fields.Float('Размер обеспечения,%')
+    guarantee_sum_rf_dogovor = fields.Float('Гарантийная сумма в валюте РФ по согласованному курсу', store=True, compute="_guarantee_sum_rf_dogovor")
 
-    contract_period = fields.Integer(compute='compute_contract_period',store=True)
-
-    @api.onchange('post_period_op','production_days')
-    @api.depends('post_period_op','production_days')
-    def compute_contract_period(self):
+    @api.depends('contract_guarantee_size_dogovor','price_currency_id_date_sign','agreed_currency')
+    @api.onchange('contract_guarantee_size_dogovor','price_currency_id_date_sign','agreed_currency')
+    def _guarantee_sum_rf_dogovor(self):
         for r in self:
-            r.contract_period = r.production_days + r.post_period_op
+            r.guarantee_sum_rf_dogovor = (r.contract_guarantee_size_dogovor * r.price_currency_id_date_sign) * r.agreed_currency / 100
 
-    guarantee_period  = fields.Integer(compute='compute_guarantee_period',store=True)
+    guarantee_period_bg_dogovor = fields.Integer('Срок действия БГ, дни', store=True, compute='_guarantee_period_bg_dogovor')
 
-    @api.onchange('warranty_period','post_period_op')
-    @api.depends('warranty_period','post_period_op')
-    def compute_guarantee_period(self):
+    @api.depends('delivery_time','post_period_bg')
+    @api.onchange('delivery_time','post_period_bg')
+    def _guarantee_period_bg_dogovor(self):
         for r in self:
-            r.guarantee_period = r.warranty_period + r.post_period_op + 1
+            r.guarantee_period_bg_dogovor = r.delivery_time + r.post_period_bg
 
-    guarantee = fields.Integer(compute='compute_guarantee',store=True)
+    commission_bg_dogovor = fields.Float('Комиссия за выпуск БГ, %')
+    commission_bg_rub_dogovor = fields.Float('Комиссия за выпуск БГ, руб', store=True, compute='_commission_bg_rub_dogovor')
 
-    @api.onchange('contract_guarantee_type','price_currency_id_date_sign','commission_bg','guarantee_period','contract_guarantee_size')
-    @api.depends('contract_guarantee_type','price_currency_id_date_sign','commission_bg','guarantee_period','contract_guarantee_size')
-    def compute_guarantee(self):
+
+    @api.depends('guarantee_sum_rf_dogovor','commission_bg_dogovor','guarantee_period_bg_dogovor')
+    @api.onchange('guarantee_sum_rf_dogovor','commission_bg_dogovor','guarantee_period_bg_dogovor')
+    def _commission_bg_rub_dogovor(self):
         for r in self:
-            if r.contract_guarantee_type == "bank_guarantees"  and r.price_currency_id_date_sign and r.contract_guarantee_size and r.commission_bg: 
-                r.guarantee = r.price_currency_id_date_sign * (r.contract_guarantee_size/100) * (r.commission_bg/100) / 12 * self.verifyFloat(r.guarantee_period)
-            elif r.contract_guarantee_type == "money" and r.price_currency_id_date_sign and r.contract_guarantee_size:
-                r.guarantee =  r.price_currency_id_date_sign * (r.contract_guarantee_size/100)
+            r.commission_bg_rub_dogovor = r.guarantee_sum_rf_dogovor * r.commission_bg_dogovor / 365 * (r.guarantee_period_bg_dogovor or 1)
+        
+        # исполнение договора
+        # 
+        # гарантийный период
 
-    cost_for_us = fields.Float(compute='compute_cost_for_us',store=True)
+    contract_guarantee_size_garanty = fields.Float('Размер обеспечения,%')
+    guarantee_sum_rf_garanty = fields.Float('Гарантийная сумма в валюте РФ по согласованному курсу', store=True, compute="_guarantee_sum_rf_garanty")
 
-    @api.onchange('refund','contract_enforcement','guarantee')
-    @api.depends('refund','contract_enforcement','guarantee')
-    def compute_cost_for_us(self):
+    @api.depends('contract_guarantee_size_garanty','price_currency_id_date_sign','agreed_currency')
+    @api.onchange('contract_guarantee_size_garanty','price_currency_id_date_sign','agreed_currency')
+    def _guarantee_sum_rf_garanty(self):
         for r in self:
-            r.cost_for_us = r.refund+r.contract_enforcement+r.guarantee
+            r.guarantee_sum_rf_garanty = (r.contract_guarantee_size_garanty * r.price_currency_id_date_sign) * r.agreed_currency / 100
 
+    guarantee_period_bg_garanty = fields.Integer('Срок действия БГ, дни', store=True, compute='_guarantee_period_bg_garanty')
+
+    @api.depends('warranty_period_bg')
+    @api.onchange('warranty_period_bg')
+    def _guarantee_period_bg_garanty(self):
+        for r in self:
+            r.guarantee_period_bg_garanty = r.warranty_period_bg
+
+    commission_bg_garanty = fields.Float('Комиссия за выпуск БГ, %')
+    commission_bg_rub_garanty = fields.Float('Комиссия за выпуск БГ, руб', store=True, compute='_commission_bg_rub_garanty')
+
+
+    @api.depends('guarantee_sum_rf_garanty','commission_bg_garanty','guarantee_period_bg_garanty')
+    @api.onchange('guarantee_sum_rf_garanty','commission_bg_garanty','guarantee_period_bg_garanty')
+    def _commission_bg_rub_garanty(self):
+        for r in self:
+            r.commission_bg_rub_garanty = r.guarantee_sum_rf_garanty * r.commission_bg_garanty / 365 * (r.guarantee_period_bg_garanty or 1)
+        
+        # гарантийный период
+        # 
+        # Обеспечительный платеж
+
+    contract_guarantee_sum = fields.Float('Размер обеспечения гарантийной суммы, %')
+    contract_guarantee_sum_rf = fields.Float('Гарантийная сумма в валюте РФ по согласованному курсу', store=True, compute="_contract_guarantee_sum_rf")
+
+    @api.depends('contract_guarantee_sum','price_currency_id_date_sign','agreed_currency')
+    @api.onchange('contract_guarantee_sum','price_currency_id_date_sign','agreed_currency')
+    def _contract_guarantee_sum_rf(self):
+        for r in self:
+            r.contract_guarantee_sum_rf = r.contract_guarantee_sum * r.price_currency_id_date_sign * r.agreed_currency / 100
+
+    contract_guarantee_size_ds = fields.Float('Размер обеспечительного платежа, %')
+    contract_guarantee_size_rub = fields.Float('Размер обеспечительного платежа, руб.', store=True, compute="_contract_guarantee_size_rub")
+
+    @api.depends('contract_guarantee_sum_rf','contract_guarantee_sum','contract_guarantee_size_ds')
+    @api.onchange('contract_guarantee_sum_rf','contract_guarantee_sum','contract_guarantee_size_ds')
+    def _contract_guarantee_size_rub(self):
+        for r in self:
+            r.contract_guarantee_size_rub = r.contract_guarantee_sum_rf * (r.contract_guarantee_sum / 100 ) * (r.contract_guarantee_size_ds / 100)
+
+    period_ds_delivery = fields.Float('Период отвлечения ДС до срока поставки, дни', store= True, compute='_period_ds_delivery')
+
+    @api.depends('delivery_time','post_period_bg')
+    @api.onchange('delivery_time','post_period_bg')
+    def _period_ds_delivery(self):
+        for r in self:
+            r.period_ds_delivery = r.delivery_time + r.post_period_bg
+
+    period_ds_warranty = fields.Float('Период отвлечения ДС до окончания гарантийного периода, дни', store= True, compute='_period_ds_delivery')
+
+    @api.depends('delivery_time','post_period_bg','warranty_period_bg')
+    @api.onchange('delivery_time','post_period_bg','warranty_period_bg')
+    def _period_ds_delivery(self):
+        for r in self:
+            r.period_ds_delivery = r.delivery_time + r.post_period_bg + r.warranty_period_bg
+            
+            # Обеспечительный платеж
 
     def verifyFloat(self,f):
         if not f:

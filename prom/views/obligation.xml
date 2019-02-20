@@ -17,6 +17,7 @@
                     </group>
                     <group >
                         <group>
+                            <field name="currency_id"/>
                             <field name="count" />
                             <field name="persent" attrs="{'invisible': [('compute_mode','!=','persent')]}"/>
                             <field name="price" attrs="{'invisible': [('compute_mode','!=','price')]}"/>
@@ -30,7 +31,7 @@
             </form>
         </field>
     </record>
-    
+
     <record id="obligation_view_tree" model="ir.ui.view">
         <field name="name">prom.obligation.tree</field>
         <field name="model">prom.obligation</field>
@@ -38,6 +39,7 @@
             <tree string="product">
                 <field name="name"/>
                 <!-- <field name="currency_id"/> -->
+                <field name="currency_id"/>
                 <field name="price"/>
                 <field name="obligation_date" required="1"/>
                 <field name="persent"/>

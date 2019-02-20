@@ -12,7 +12,7 @@ import logging
 class obligation(models.Model):
     _name = 'prom.obligation'
     name = fields.Char()
-    # currency_id  = fields.Many2one(comodel_name="res.currency")
+    currency_id = fields.Many2one(comodel_name="res.currency")
     price = fields.Float()
     persent = fields.Integer()
     unit = fields.Char()
