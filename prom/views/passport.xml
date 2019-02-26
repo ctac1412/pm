@@ -23,18 +23,21 @@
 
                 <sheet invisible="1">
                     <field name="parent_project_id"/>
+                    <field name="kind_podryad"/>
                     <button string="update_payment_month_ids" name="update_payment_month_ids" type="object" class="btn" />
                     <field name="payment_month_ids"/>
                 </sheet>
 
-
                 <sheet>
+                    <div class="o_row">
+                            Основной проект                        <field name="root_parent_project_id" readonly="1" string="Основной проект"/>
+                            / Подряд                        <field name="parent_project_id" readonly="1" string="Подряд" attrs="{'invisible': ['|',('kind_podryad','in',['main']),('parent_project_id','=',False)]}"/>
+                            / Субподряд                        <field name="sub_podryad_name" readonly="1" string="Субподряд" attrs="{'invisible': [('kind_podryad','not in',['subcontractor'])]}"/>
+                    </div>
+
                     <group string="">
-
-
                         <field name="project_id" attrs="{'readonly':[('project_id','!=',False)]}"/>
                         <field name="parent_passport_id" readonly="1"/>
-
                         <label for="child_passport_id" string="child_passport_id"/>
                         <div class="o_row">
                             <field name="child_passport_id" readonly="1" attrs="{'invisible': [('child_passport_id','=',False)]}"/>
@@ -216,7 +219,12 @@
                                     <field name="avance_contract_part_pr" />
                                 </group>
                                 <group string="Цена">
-                                    <field name="avance_summ_cur_contract" />
+                                    <field name="avance_summ_cur_contract"/>
+                                    <label for='avance_summ_cur_contract_rf' string='Рубли'></label>
+                                    <div class="o_row">
+                                        <field nolabel="1" name="avance_summ_cur_contract_rf"/>
+                                        <button name="compute_avance_summ_cur_contract_rf" string="Конвертировать" type="object" class="oe_link"/>
+                                    </div>
                                     <field name="avance_summ_cur_rub_date_podpis"/>
                                     <field name="avance_contract_part_cur"/>
                                 </group>
@@ -238,6 +246,11 @@
                                 </group>
                                 <group string="Цена">
                                     <field name="message_summ_cur_contract"/>
+                                    <label for='message_summ_cur_contract_rf' string='Рубли'></label>
+                                    <div class="o_row">
+                                        <field nolabel="1" name="message_summ_cur_contract_rf"/>
+                                        <button name="compute_message_summ_cur_contract_rf" string="Конвертировать" type="object" class="oe_link"/>
+                                    </div>
                                     <field name="message_summ_cur_rub_date_podpis"/>
                                     <field name="message_contract_part_cur"/>
                                 </group>
@@ -259,6 +272,11 @@
                                 </group>
                                 <group string="Цена">
                                     <field name="endpnr_summ_cur_contract"/>
+                                    <label for='endpnr_summ_cur_contract_rf' string='Рубли'></label>
+                                    <div class="o_row">
+                                        <field nolabel="1" name="endpnr_summ_cur_contract_rf"/>
+                                        <button name="compute_endpnr_summ_cur_contract_rf" string="Конвертировать" type="object" class="oe_link"/>
+                                    </div>
                                     <field name="endpnr_summ_cur_rub_date_podpis"/>
                                     <field name="endpnr_contract_part_cur"/>
                                 </group>
@@ -280,6 +298,11 @@
                                 </group>
                                 <group string="Цена">
                                     <field name="fact_summ_cur_contract"/>
+                                    <label for='fact_summ_cur_contract_rf' string='Рубли'></label>
+                                    <div class="o_row">
+                                        <field nolabel="1" name="fact_summ_cur_contract_rf"/>
+                                        <button name="compute_fact_summ_cur_contract_rf" string="Конвертировать" type="object" class="oe_link"/>
+                                    </div>
                                     <field name="fact_summ_cur_rub_date_podpis"/>
                                     <field name="fact_contract_part_cur"/>
                                 </group>
@@ -295,51 +318,52 @@
                 </sheet>
                 <sheet>
                     <group string='Обеспечение по договору'>
-                        
-                            <field name="agreed_currency"/>
-                            <field name="post_period_bg"/>
-                            <field name="warranty_period_bg"/>
-                            <field name="is_include_report"/>
-                        
+
+                        <field name="agreed_currency"/>
+                        <field name="post_period_bg"/>
+                        <field name="warranty_period_bg"/>
+                        <field name="is_include_report"/>
+                        <field name="type_of_pledge"/>
+
                     </group>
-                        <notebook>
-                            <page string="Возврат авансового платежа">
-                                <group>
-                                    <field name="contract_guarantee_size"/>
-                                    <field name="guarantee_sum_rf"/>
-                                    <field name="guarantee_period_bg"/>
-                                    <field name="commission_bg"/>
-                                    <field name="commission_bg_rub"/>
-                                </group>
-                            </page>
-                            <page string="Исполнение договора">
-                                <group>
-                                    <field name="contract_guarantee_size_dogovor"/>
-                                    <field name="guarantee_sum_rf_dogovor"/>
-                                    <field name="guarantee_period_bg_dogovor"/>
-                                    <field name="commission_bg_dogovor"/>
-                                    <field name="commission_bg_rub_dogovor"/>
-                                </group>
-                            </page>
-                            <page string="Гарантийный период">
-                                <group>
-                                    <field name="contract_guarantee_size_garanty"/>
-                                    <field name="guarantee_sum_rf_garanty"/>
-                                    <field name="guarantee_period_bg_garanty"/>
-                                    <field name="commission_bg_garanty"/>
-                                    <field name="commission_bg_rub_garanty"/>
-                                </group>
-                            </page>
-                        </notebook>
-                    <group string='Обеспечительный платеж'>
-                            <field name="contract_guarantee_sum"/>
-                            <field name="contract_guarantee_sum_rf"/>
-                            <field name="contract_guarantee_size_ds"/>
-                            <field name="contract_guarantee_size_rub"/>
-                            <field name="period_ds_delivery"/>
-                            <field name="period_ds_warranty"/>
+                    <notebook attrs="{'invisible': [('type_of_pledge','not in',['bg'])]}">
+                        <page string="Возврат авансового платежа">
+                            <group>
+                                <field name="contract_guarantee_size"/>
+                                <field name="guarantee_sum_rf"/>
+                                <field name="guarantee_period_bg"/>
+                                <field name="commission_bg"/>
+                                <field name="commission_bg_rub"/>
+                            </group>
+                        </page>
+                        <page string="Исполнение договора">
+                            <group>
+                                <field name="contract_guarantee_size_dogovor"/>
+                                <field name="guarantee_sum_rf_dogovor"/>
+                                <field name="guarantee_period_bg_dogovor"/>
+                                <field name="commission_bg_dogovor"/>
+                                <field name="commission_bg_rub_dogovor"/>
+                            </group>
+                        </page>
+                        <page string="Гарантийный период">
+                            <group>
+                                <field name="contract_guarantee_size_garanty"/>
+                                <field name="guarantee_sum_rf_garanty"/>
+                                <field name="guarantee_period_bg_garanty"/>
+                                <field name="commission_bg_garanty"/>
+                                <field name="commission_bg_rub_garanty"/>
+                            </group>
+                        </page>
+                    </notebook>
+                    <group string='Обеспечительный платеж' attrs="{'invisible': [('type_of_pledge','not in',['money'])]}">
+                        <field name="contract_guarantee_sum"/>
+                        <field name="contract_guarantee_sum_rf"/>
+                        <field name="contract_guarantee_size_ds"/>
+                        <field name="contract_guarantee_size_rub"/>
+                        <field name="period_ds_delivery"/>
+                        <field name="period_ds_warranty"/>
                     </group>
-                    
+
                     <group string='Движение денежных средств' groups='prom.group_chief_accountant,prom.group_financial_director'>
 
                         <field name="finn_transaction_ids" nolabel='1' context="{'default_passport_id':id, 'tree_view_ref' : 'prom.finn_transaction_view_tree_min'}"/>

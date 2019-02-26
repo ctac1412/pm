@@ -146,11 +146,22 @@ class project(models.Model):
         for r in self:
             if r.parent_project_id and not r.parent_project_id.parent_project_id:
                 r.kind_podryad = "contractor"
+                r.root_parent_project_id = r.parent_project_id.id
             elif r.parent_project_id and r.parent_project_id.parent_project_id:
                 r.kind_podryad = "subcontractor"
+                r.root_parent_project_id = r.parent_project_id.parent_project_id.id
             else:
                 r.kind_podryad = "main"
+                r.root_parent_project_id = r.id
 
+    sub_podryad_name = fields.Char(compute="_sub_podryad_name")
+    def _sub_podryad_name(self):
+        for r in self:
+            r.sub_podryad_name = r.name
+
+    root_parent_project_id = fields.Many2one(
+        comodel_name="prom.project", compute='compute_kind_podryad'
+    )
     parent_project_id = fields.Many2one(
         comodel_name="prom.project",
     )

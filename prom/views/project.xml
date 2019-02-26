@@ -40,10 +40,16 @@
                         <field name="related_manager_user_id" readonly="1"/>
                         <field name="customer_company_id"/>
                         <field name="contractor_company_id"/>
-                        <field name="parent_project_id" readonly="1"/>
                         <field name="kind_podryad" class="oe_read_only"/>
-                  
+
                     </group>
+                        
+                    <div class="o_row">
+                            Основной проект <field name="root_parent_project_id" readonly="1" string="Основной проект"/>
+                            / Подряд <field name="parent_project_id" readonly="1" string="Подряд" attrs="{'invisible': ['|',('kind_podryad','in',['main']),('parent_project_id','=',False)]}"/>
+                            / Субподряд <field name="sub_podryad_name" readonly="1" string="Субподряд" attrs="{'invisible': [('kind_podryad','not in',['subcontractor'])]}"/>
+                        </div>
+                    <separator/>
 
                     <div class="o_row">
                         <h2>Паспорт сделки

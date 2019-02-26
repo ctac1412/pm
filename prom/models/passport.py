@@ -10,6 +10,7 @@ from datetime import date, datetime,timedelta
 import calendar
 import logging
 
+_logger = logging.getLogger("passport")
 # class payment_quarter(models.Model):
 #         _name = 'prom.payment_quarter'
 #         _sql_constraints = [
@@ -169,6 +170,30 @@ class passport(models.Model):
     _order = 'id DESC'
     compute_name = fields.Char(compute='_compute_name')
     
+    # root_parent_project_id
+    # parent_project_id
+    # kind_podryad
+    # sub_podryad_name
+    
+    sub_podryad_name = fields.Char(related='project_id.sub_podryad_name')
+
+    root_parent_project_id = fields.Many2one(
+        related='project_id.root_parent_project_id'
+    )
+
+    kind_podryad = fields.Selection(
+        related='project_id.kind_podryad'
+    )
+
+    project_id = fields.Many2one(
+        comodel_name='prom.project',
+    )
+
+    parent_project_id = fields.Many2one(
+        related='project_id.parent_project_id',store=True
+    )
+
+
     @api.onchange('specification_number','contract_number')
     @api.depends('specification_number','contract_number')
     def _compute_name(self):
@@ -404,12 +429,8 @@ class passport(models.Model):
     column2='attachment_id',
     string='Attachments')
 
-    project_id = fields.Many2one(
-    comodel_name='prom.project',
-    )
-    parent_project_id = fields.Many2one(
-        related='project_id.parent_project_id',store=True
-    )
+
+
     specification_number  = fields.Text(required=True)
     term_of_delivery  = fields.Text()
     is_export = fields.Boolean(default=False)
@@ -656,6 +677,14 @@ class passport(models.Model):
     avance_summ_cur_contract = fields.Float()
     avance_summ_cur_contract_rf = fields.Float()
 
+    
+    def compute_avance_summ_cur_contract_rf(self):
+        for r in self:
+            if r.date_of_signing and r.currency_id and r.avance_summ_cur_contract_rf:
+                r.avance_summ_cur_contract = self.fromRub(r.date_of_signing, r.currency_id, r.avance_summ_cur_contract_rf)
+                r.avance_summ_cur_contract_rf = False
+                r.onchange_avance_summ_cur_contract()
+
     avance_payment_delay = fields.Integer()
     avance_terms_of_payment = fields.Char()
     avance_payment_date = fields.Date(compute="compute_avance_payment_date",store=True)
@@ -718,6 +747,15 @@ class passport(models.Model):
     # Уведомление 
     message_contract_part_pr = fields.Float()
     message_summ_cur_contract = fields.Float()
+    message_summ_cur_contract_rf = fields.Float()
+
+    
+    def compute_message_summ_cur_contract_rf(self):
+        for r in self:
+            if r.date_of_signing and r.currency_id and r.message_summ_cur_contract_rf:
+                r.message_summ_cur_contract = self.fromRub(r.date_of_signing, r.currency_id, r.message_summ_cur_contract_rf)
+                r.message_summ_cur_contract_rf = False
+                r.onchange_message_summ_cur_contract()
 
     message_payment_delay = fields.Integer()
     message_terms_of_payment = fields.Char()
@@ -780,6 +818,15 @@ class passport(models.Model):
     # Конец ПНР 
     endpnr_contract_part_pr  = fields.Float()
     endpnr_summ_cur_contract = fields.Float()
+    endpnr_summ_cur_contract_rf = fields.Float()
+
+    
+    def compute_endpnr_summ_cur_contract_rf(self):
+        for r in self:
+            if r.date_of_signing and r.currency_id and r.endpnr_summ_cur_contract_rf:
+                r.endpnr_summ_cur_contract = self.fromRub(r.date_of_signing, r.currency_id, r.endpnr_summ_cur_contract_rf)
+                r.endpnr_summ_cur_contract_rf = False
+                r.onchange_endpnr_summ_cur_contract()
 
     endpnr_payment_delay = fields.Integer()
     endpnr_terms_of_payment = fields.Char()
@@ -842,6 +889,15 @@ class passport(models.Model):
     # Фактические
     fact_contract_part_pr  = fields.Float()
     fact_summ_cur_contract = fields.Float()
+    fact_summ_cur_contract_rf = fields.Float()
+
+    
+    def compute_fact_summ_cur_contract_rf(self):
+        for r in self:
+            if r.date_of_signing and r.currency_id and r.fact_summ_cur_contract_rf:
+                r.fact_summ_cur_contract = self.fromRub(r.date_of_signing, r.currency_id, r.fact_summ_cur_contract_rf)
+                r.fact_summ_cur_contract_rf = False
+                r.onchange_fact_summ_cur_contract()
 
     fact_payment_delay = fields.Integer()
     fact_terms_of_payment = fields.Char()
@@ -920,6 +976,13 @@ class passport(models.Model):
     post_period_bg  = fields.Integer(string="Постпериод, дни", )
     warranty_period_bg = fields.Integer(string="Гарантийный период, дни", compute='_warranty_period_bg',store=True)
     is_include_report = fields.Boolean(string="Включать в расчеты по проекту", )
+    type_of_pledge = fields.Selection(
+        string="Тип обеспечения",
+        selection=[
+                ('bg', 'Банковская гарантия'),
+                ('money', 'Денежные средства'),
+        ],
+    ) 
 
     @api.depends('warranty_period')
     @api.onchange('warranty_period')
