@@ -13,7 +13,13 @@
     'depends': ['base', 'mail'],
     'data': [
         'views/main.xml',
-        'views/vk_person.xml',
+        # vk
+        'views/vk/vk_career.xml',
+        'views/vk/vk_military.xml',
+        'views/vk/vk_person.xml',
+        'views/vk/vk_schools.xml',
+        'views/vk/vk_universities.xml',
+        # vk
         'views/menu.xml',
     ],
     'demo': [],

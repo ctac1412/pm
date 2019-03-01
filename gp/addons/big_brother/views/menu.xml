@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-  
-  <menuitem name="Карточка" id="big_brother.menu_main" action="act_open_main_view"/>
-  <menuitem name="Вк карточка" id="big_brother.menu_vk_person" action="act_open_vk_person_view"/>
+
+    <menuitem name="Карточка" id="big_brother.menu_main" action="act_open_main_view"/>
+    <menuitem name="Вк карточка" id="big_brother.menu_vk_person" action="act_open_vk_person_view"/>
 
   </data>
 </odoo>

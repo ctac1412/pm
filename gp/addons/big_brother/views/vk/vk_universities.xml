@@ -1,0 +1,55 @@
+<odoo>
+    <data>
+
+        <record id="view_vk_universities_form" model="ir.ui.view">
+            <field name="name">big_brother.vk_universities.form</field>
+            <field name="model">big_brother.vk_universities</field>
+            <field name="arch" type="xml">
+                <form string="Вуз ВК">
+                    <sheet>
+                        <group>
+                            <field name="vk_id"/>
+                            <field name="country"/>
+                            <field name="city"/>
+                            <field name="name"/>
+                            <field name="faculty"/>
+                            <field name="faculty_name"/>
+                            <field name="chair"/>
+                            <field name="chair_name"/>
+                            <field name="graduation"/>
+                            <field name="education_form"/>
+                            <field name="education_status"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vk_universities_tree" model="ir.ui.view">
+            <field name="name">big_brother.vk_universities.tree</field>
+            <field name="model">big_brother.vk_universities</field>
+            <field name="arch" type="xml">
+                <tree string="Вуз ВК">
+                    <!-- <field name="vk_id"/> -->
+                    <!-- <field name="country"/> -->
+                    <!-- <field name="city"/> -->
+                    <field name="name"/>
+                    <!-- <field name="faculty"/> -->
+                    <field name="faculty_name"/>
+                    <!-- <field name="chair"/> -->
+                    <field name="chair_name"/>
+                    <field name="graduation"/>
+                    <field name="education_form"/>
+                    <field name="education_status"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_open_vk_universities_view">
+            <field name="name">Вуз ВК</field>
+            <field name="res_model">big_brother.vk_universities</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,49 @@
+<odoo>
+    <data>
+
+        <record id="view_vk_career_form" model="ir.ui.view">
+            <field name="name">big_brother.vk_career.form</field>
+            <field name="model">big_brother.vk_career</field>
+            <field name="arch" type="xml">
+                <form string="Карьера ВК">
+                    <sheet>
+                        <group>
+                            <field name="group_id"/>
+                            <field name="company"/>
+                            <field name="country_id"/>
+                            <field name="city_id"/>
+                            <field name="city_name"/>
+                            <field name="year_from"/>
+                            <field name="year_until"/>
+                            <field name="position"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vk_career_tree" model="ir.ui.view">
+            <field name="name">big_brother.vk_career.tree</field>
+            <field name="model">big_brother.vk_career</field>
+            <field name="arch" type="xml">
+                <tree string="Карьера ВК">
+                    <!-- <field name="group_id"/> -->
+                    <field name="company"/>
+                    <!-- <field name="country_id"/> -->
+                    <!-- <field name="city_id"/> -->
+                    <field name="city_name"/>
+                    <field name="year_from"/>
+                    <field name="year_until"/>
+                    <field name="position"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_open_vk_career_view">
+            <field name="name">Карьера ВК</field>
+            <field name="res_model">big_brother.vk_career</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

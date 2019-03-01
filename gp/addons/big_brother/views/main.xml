@@ -1,6 +1,6 @@
 <odoo>
     <data>
-    
+
         <record id="view_main_form" model="ir.ui.view">
             <field name="name">big_brother.main.form</field>
             <field name="model">big_brother.main</field>
@@ -9,60 +9,112 @@
                     <header>
                     </header>
                     <sheet>
-                        <button name='vk_update_data' string='Обновить ВК' type='object' class='oe_link'/>
+                        <h1>Базовые данные</h1>
                         <group>
-                            <field name="name"/>
-                            <field name="vk_id"/>
-                            <field name="vk_photo_max_orig"/>
-                            <field name="vk_online"/>
-                            <!-- <field name="vk_lists"/> -->
-                            <field name="vk_domain"/>
-                            <!-- <field name="vk_has_mobile"/> -->
-                            <field name="vk_mobile_phone"/>
-                            <field name="vk_home_phone"/>
-                            <field name="vk_site"/>
-                            <field name="vk_education"/>
-                            <field name="vk_universities_ids"/>
-                            <field name="vk_schools_ids"/>
-                            <field name="vk_status"/>
-                            <field name="vk_followers_count"/>
-                            <field name="vk_nickname"/>
-                            <field name="vk_relatives"/>
-                            <field name="vk_relation"/>
-                            <field name="vk_political"/>
-                            <field name="vk_langs"/>
-                            <field name="vk_religion"/>
-                            <field name="vk_inspired_by"/>
-                            <field name="vk_people_main"/>
-                            <field name="vk_life_main"/>
-                            <field name="vk_smoking"/>
-                            <field name="vk_alcohol"/>
-                            <field name="vk_connections"/>
-                            <field name="vk_exports"/>
-                            <field name="vk_wall_comments"/>
-                            <field name="vk_activities"/>
-                            <field name="vk_interests"/>
-                            <field name="vk_music"/>
-                            <field name="vk_movies"/>
-                            <field name="vk_tv"/>
-                            <field name="vk_books"/>
-                            <field name="vk_games"/>
-                            <field name="vk_about"/>
-                            <field name="vk_quotes"/>
-                            <field name="vk_can_post"/>
-                            <field name="vk_can_see_all_posts"/>
-                            <field name="vk_can_see_audio"/>
-                            <field name="vk_can_write_private_message"/>
-                            <field name="vk_can_send_friend_request"/>
-                            <field name="vk_screen_name"/>
-                            <field name="vk_maiden_name"/>
-                            <field name="vk_is_friend"/>
-                            <field name="vk_career"/>
-                            <field name="vk_military_ids"/>
-                            <field name="vk_occupation"/>
-                            <field name="vk_occupation_name"/>
-                            <field name="vk_occupation_id"/>
+                            <field name="first_name"/>
+                            <field name="last_name"/>
+                            <field name="patronyc_name"/>
+                            <field name="fio_name"/>
                         </group>
+                        <group string='Идентификаторы Соц. Сетей'>
+                            <label for="vk_id_main" string="id Вконтакте"/>
+                            <div class="o_row">
+                                <field name="vk_id_main" nolabel="1"/>
+                                <button class="oe_link" name="vk_update_data" type="object"
+                                        string="Обновить"></button>
+                            </div>
+                        </group>
+                    </sheet>
+                    <sheet>
+                        <field name="vk_id" invisible='1'/>
+                        <h1>
+                            Вконтактe <field name="vk_id_url" readonly="1" widget="url" text="ссылка"/>
+                        </h1>
+                        <h1>
+                            Только чтение: <field name="vk_is_readonly"/>
+                        </h1>
+                        <field name="vk_photo_image" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label for="vk_first_name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="vk_first_name" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                            </h1>
+                            <label for="vk_last_name" class="oe_edit_only" string="Фамилия"/>
+                            <h2>
+                                <field name="vk_last_name" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                            </h2>
+                            <group >
+                                <group>
+                                    <field name="vk_maiden_name" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                                    <field name="vk_nickname" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                                </group>
+                                <group>
+                                    <field name="vk_domain" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                                    <field name="vk_screen_name" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                                    
+                                </group>
+                            </group>
+                            <field name="vk_status" attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                            <field name="vk_site" widget='link' attrs="{'readonly': [('vk_is_readonly','=',True)]}"/>
+                        </div>
+                        <h2>Друзья</h2>
+                        <field name="friend_vk_person_ids" attrs="{'readonly': [('vk_is_readonly','=',True)]}">
+                            <tree limit='10'>
+                                <field name="vk_first_name"/>
+                                <field name="vk_last_name"/>
+                                <field name="vk_online"/>
+                            </tree>
+                        </field>
+                        <h2>Родственники</h2>
+                        <field name="vk_relatives_ids" attrs="{'readonly': [('vk_is_readonly','=',True)]}">
+                            <tree limit='10' create="false" edit="false" editable="bottom">
+                                <field name="in_vk_person_id"/>
+                                <field name="vk_relatives_type"/>
+                                <button name="open_in_vk_person_id" string='Открыть' type='object'/>
+                            </tree>
+                        </field>
+
+                        <group>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_online"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_photo_max_orig"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_mobile_phone"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_home_phone"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_education"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_followers_count"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_relation"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_relation_partner"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_political"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_langs"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_religion"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_inspired_by"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_people_main"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_life_main"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_smoking"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_alcohol"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_connections"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_exports"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_activities"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_interests"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_music"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_movies"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_tv"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_books"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_games"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_about"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_quotes"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_occupation"/>
+                            <field  attrs="{'readonly': [('vk_is_readonly','=',True)]}" name="vk_occupation_name"/>
+                            <!-- <field name="vk_occupation_id"/> -->
+                        </group>
+                        <h2>Список вузов, в которых учился пользователь</h2>
+                        <field name="vk_universities_ids" nolabel='1'/>
+                        <h2>Cписок школ, в которых учился пользователь</h2>
+                        <field name="vk_schools_ids" nolabel='1'/>
+                        <h2>Карьера пользователя</h2>
+                        <field name="vk_career_ids" nolabel='1'/>
+                        <h2>Военная служба</h2>
+                        <field name="vk_military_ids" nolabel='1'/>
+
                     </sheet>
                 </form>
             </field>
@@ -73,7 +125,7 @@
             <field name="model">big_brother.main</field>
             <field name="arch" type="xml">
                 <tree string="">
-                     <field name="name"/>
+                    <field name="fio_name"/>
                 </tree>
             </field>
         </record>

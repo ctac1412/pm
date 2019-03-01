@@ -1,0 +1,122 @@
+<odoo>
+    <data>
+
+        <record id="view_vk_person_form" model="ir.ui.view">
+            <field name="name">big_brother.vk_person.form</field>
+            <field name="model">big_brother.vk_person</field>
+            <field name="arch" type="xml">
+                <form string="Пользователь ВК">
+                    <sheet>
+                        <h1>Вконтактe id:<field name="vk_id" readonly='1'/>
+                        </h1>
+                        <field name="vk_photo_image" widget="image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label for="vk_first_name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="vk_first_name"/>
+                            </h1>
+                            <label for="vk_last_name" class="oe_edit_only" string="Фамилия"/>
+                            <h2>
+                                <field name="vk_last_name"/>
+                            </h2>
+                            <group >
+                                <group>
+                            <field name="vk_maiden_name"/>
+                                    <field name="vk_nickname"/>
+                                </group>
+                                <group>
+                                    <field name="vk_domain"/>
+                            <field name="vk_screen_name"/>
+                                    
+                                </group>
+                            </group>
+                           
+                            <field name="vk_site" widget='link'/>
+                        </div>
+                        <h2>Друзья</h2>
+                        <field name="friend_vk_person_ids">
+                            <tree limit='10'>
+                                <field name="vk_first_name"/>
+                                <field name="vk_last_name"/>
+                                <field name="vk_online"/>
+                            </tree>
+                        </field>
+                        <h2>Родственники</h2>
+                        <field name="vk_relatives_ids">
+                            <tree limit='10' create="false" edit="false" editable="bottom">
+                                <field name="in_vk_person_id"/>
+                                <field name="vk_relatives_type"/>
+                                <button name="open_in_vk_person_id" string='Открыть' type='object'/>
+                            </tree>
+                        </field>
+
+                        <group>
+                            <field name="vk_online"/>
+                            <field name="vk_domain"/>
+                            <field name="vk_status"/>
+                            
+                            <field name="vk_photo_max_orig"/>
+
+                            <field name="vk_mobile_phone"/>
+                            <field name="vk_home_phone"/>
+                            <field name="vk_education"/>
+                            <field name="vk_followers_count"/>
+
+                            
+                            <field name="vk_relation"/>
+                            <field name="vk_relation_partner"/>
+                            <field name="vk_political"/>
+                            <field name="vk_langs"/>
+                            <field name="vk_religion"/>
+                            <field name="vk_inspired_by"/>
+                            <field name="vk_people_main"/>
+                            <field name="vk_life_main"/>
+                            <field name="vk_smoking"/>
+                            <field name="vk_alcohol"/>
+                            <field name="vk_connections"/>
+                            <field name="vk_exports"/>
+                            <field name="vk_activities"/>
+                            <field name="vk_interests"/>
+                            <field name="vk_music"/>
+                            <field name="vk_movies"/>
+                            <field name="vk_tv"/>
+                            <field name="vk_books"/>
+                            <field name="vk_games"/>
+                            <field name="vk_about"/>
+                            <field name="vk_quotes"/>
+                            <field name="vk_occupation"/>
+                            <field name="vk_occupation_name"/>
+                            <!-- <field name="vk_occupation_id"/> -->
+                        </group>
+                        <h2>Список вузов, в которых учился пользователь</h2>
+                        <field name="vk_universities_ids" nolabel='1'/>
+                        <h2>Cписок школ, в которых учился пользователь</h2>
+                        <field name="vk_schools_ids" nolabel='1'/>
+                        <h2>Карьера пользователя</h2>
+                        <field name="vk_career_ids" nolabel='1'/>
+                        <h2>Военная служба</h2>
+                        <field name="vk_military_ids" nolabel='1'/>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vk_person_tree" model="ir.ui.view">
+            <field name="name">big_brother.vk_person.tree</field>
+            <field name="model">big_brother.vk_person</field>
+            <field name="arch" type="xml">
+                <tree string="Пользователь ВК">
+                    <field name="vk_online"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_open_vk_person_view">
+            <field name="name">Пользователь ВК</field>
+            <field name="res_model">big_brother.vk_person</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

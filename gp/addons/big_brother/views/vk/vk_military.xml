@@ -1,0 +1,43 @@
+<odoo>
+    <data>
+
+        <record id="view_vk_military_form" model="ir.ui.view">
+            <field name="name">big_brother.vk_military.form</field>
+            <field name="model">big_brother.vk_military</field>
+            <field name="arch" type="xml">
+                <form string="Военная служба ВК">
+                    <sheet>
+                        <group>
+                            <field name="unit"/>
+                            <field name="unit_id"/>
+                            <field name="country_id"/>
+                            <field name="from_date"/>
+                            <field name="until_date"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vk_military_tree" model="ir.ui.view">
+            <field name="name">big_brother.vk_military.tree</field>
+            <field name="model">big_brother.vk_military</field>
+            <field name="arch" type="xml">
+                <tree string="Военная служба ВК">
+                    <field name="unit"/>
+                    <!-- <field name="unit_id"/> -->
+                    <!-- <field name="country_id"/> -->
+                    <field name="from_date"/>
+                    <field name="until_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_open_vk_military_view">
+            <field name="name">Военная служба ВК</field>
+            <field name="res_model">big_brother.vk_military</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>
