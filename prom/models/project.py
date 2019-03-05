@@ -22,20 +22,6 @@ from reports.plan_prodash import plan_prodash
 
 _logger = logging.getLogger("project")
 
-class res_company(models.Model):
-    _name = 'res.company'
-    _inherit = ['res.company']
-    nds = fields.Float()
-    is_own =  fields.Boolean()
-    is_rf =  fields.Boolean()
-    nds_type = fields.Selection(
-        selection=[
-                ('orn', 'orn'),
-                ('ysn', 'ysn'),
-        ],
-    )
-    activity = fields.Text()
-
 class project(models.Model):
     _name = 'prom.project'
     _description = u'List of projects'

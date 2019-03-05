@@ -43,7 +43,7 @@ class rp_write(report_writer):
             self.label_value(u"Цена договора в валюте РФ на дату подписания",passport.price_rub_date_sign)
             self.label_value(u"курс на дату заключения сделки",passport.currency_of_signing)
             self.label_value(u"Экспорт",passport.is_export)
-            self.label_value(u"Ставка НДС, %НДС",r.contractor_company_id.nds or 0)
+            self.label_value(u"Ставка НДС, %НДС",r.contractor_company_id.get_nds(passport.date_of_signing) or 0)
             self.label_value(u"Сумма НДС в рублях на дату подписания",(passport.price_rub_date_sign or 0) - (passport.price_rub_date_sign_wonds or 0))
             self.label_value(u"Условие поставки",passport.term_of_delivery)
             self.label_value(u"Дата старта",passport.date_of_pr_start)

@@ -162,6 +162,7 @@ class validate_passport(models.Model):
 
 
 
+
 class passport(models.Model):
     _name = 'prom.passport'
     _description = u'Passport'
@@ -403,7 +404,6 @@ class passport(models.Model):
             return cur_id_curs * summ
 
 
-
     @api.model
     def toRub(self,date,cur_id,price):
         print '-------------- toRub',date,cur_id,price
@@ -508,7 +508,7 @@ class passport(models.Model):
                 import math
                 summInRub = math.fsum([float(self.toRub(r.date_of_signing,r.currency_id,x.price*x.count)) for x in r.product_ids])
                 if nds:
-                    nds = r.project_id.contractor_company_id.nds or 0
+                    nds = r.project_id.contractor_company_id.get_nds(r.date_of_signing) or 0
                     return summInRub + (summInRub * (nds/100))
                 else :
                     return summInRub
@@ -517,7 +517,7 @@ class passport(models.Model):
         import math
         summInRub = math.fsum([float(self.toRub(fields.Datetime.now(),r.currency_id,x.price*x.count)) for x in r.product_ids])
         if nds:
-            nds = r.project_id.contractor_company_id.nds or 0
+            nds = r.project_id.contractor_company_id.get_nds(r.date_of_signing) or 0
             return summInRub + (summInRub * (nds/100))
         else :
             return summInRub
@@ -1016,7 +1016,7 @@ class passport(models.Model):
     @api.onchange('guarantee_sum_rf','commission_bg','guarantee_period_bg')
     def _commission_bg_rub(self):
         for r in self:
-            r.commission_bg_rub = r.guarantee_sum_rf * r.commission_bg / 365 * (r.guarantee_period_bg or 1)
+            r.commission_bg_rub = r.guarantee_sum_rf * r.commission_bg / 365 * (r.guarantee_period_bg or 1) / 100
         
         # возврат авансового платежа  
         # 
@@ -1042,12 +1042,11 @@ class passport(models.Model):
     commission_bg_dogovor = fields.Float('Комиссия за выпуск БГ, %')
     commission_bg_rub_dogovor = fields.Float('Комиссия за выпуск БГ, руб', store=True, compute='_commission_bg_rub_dogovor')
 
-
     @api.depends('guarantee_sum_rf_dogovor','commission_bg_dogovor','guarantee_period_bg_dogovor')
     @api.onchange('guarantee_sum_rf_dogovor','commission_bg_dogovor','guarantee_period_bg_dogovor')
     def _commission_bg_rub_dogovor(self):
         for r in self:
-            r.commission_bg_rub_dogovor = r.guarantee_sum_rf_dogovor * r.commission_bg_dogovor / 365 * (r.guarantee_period_bg_dogovor or 1)
+            r.commission_bg_rub_dogovor = r.guarantee_sum_rf_dogovor * r.commission_bg_dogovor / 365 * (r.guarantee_period_bg_dogovor or 1) /100
         
         # исполнение договора
         # 
@@ -1078,7 +1077,7 @@ class passport(models.Model):
     @api.onchange('guarantee_sum_rf_garanty','commission_bg_garanty','guarantee_period_bg_garanty')
     def _commission_bg_rub_garanty(self):
         for r in self:
-            r.commission_bg_rub_garanty = r.guarantee_sum_rf_garanty * r.commission_bg_garanty / 365 * (r.guarantee_period_bg_garanty or 1)
+            r.commission_bg_rub_garanty = r.guarantee_sum_rf_garanty * r.commission_bg_garanty / 365 * (r.guarantee_period_bg_garanty or 1) / 100
         
         # гарантийный период
         # 
@@ -1102,7 +1101,7 @@ class passport(models.Model):
         for r in self:
             r.contract_guarantee_size_rub = r.contract_guarantee_sum_rf * (r.contract_guarantee_sum / 100 ) * (r.contract_guarantee_size_ds / 100)
 
-    period_ds_delivery = fields.Float('Период отвлечения ДС до срока поставки, дни', store= True, compute='_period_ds_delivery')
+    period_ds_delivery = fields.Float('Период отвлечения ДС до окончания гарантийного периода, дни', store= True, compute='_period_ds_delivery')
 
     @api.depends('delivery_time','post_period_bg')
     @api.onchange('delivery_time','post_period_bg')
@@ -1110,7 +1109,7 @@ class passport(models.Model):
         for r in self:
             r.period_ds_delivery = r.delivery_time + r.post_period_bg
 
-    period_ds_warranty = fields.Float('Период отвлечения ДС до окончания гарантийного периода, дни', store= True, compute='_period_ds_delivery')
+    period_ds_warranty = fields.Float('Период отвлечения ДС до срока поставки, дни', store= True, compute='_period_ds_delivery')
 
     @api.depends('delivery_time','post_period_bg','warranty_period_bg')
     @api.onchange('delivery_time','post_period_bg','warranty_period_bg')

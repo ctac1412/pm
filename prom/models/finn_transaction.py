@@ -68,22 +68,24 @@ class finn_transaction(models.Model):
                 r.payment_amount_rub = self.env["prom.passport"].toRub(r.transfer_date,r.passport_id.currency_id,r.payment_amount)
 
     nds_percent = fields.Float(related="passport_id.project_id.contractor_company_id.nds")
+    nds_percent_new = fields.Float(related="passport_id.project_id.contractor_company_id.nds_new")
+    # 
     nds_sum = fields.Float(compute="compute_nds_sum",store=True)
     nds_sum_rub  = fields.Float(compute="compute_nds_sum_rub",store=True)
 
-    @api.onchange("payment_amount","nds_percent")
-    @api.depends("payment_amount","nds_percent")
+    @api.onchange('payment_amount','nds_percent','nds_percent_new')
+    @api.depends('payment_amount','nds_percent','nds_percent_new')
     def compute_nds_sum(self):
         for r in self:
             if r.payment_amount:
-                r.nds_sum = r.payment_amount * (r.nds_percent/100)
+                r.nds_sum = r.payment_amount * (r.passport_id.project_id.contractor_company_id.get_nds(r.passport_id.date_of_signing) / 100)
 
-    @api.onchange("payment_amount_rub","nds_percent")
-    @api.depends("payment_amount_rub","nds_percent")
+    @api.onchange("payment_amount_rub","nds_percent",'nds_percent_new')
+    @api.depends("payment_amount_rub","nds_percent",'nds_percent_new')
     def compute_nds_sum_rub(self):
         for r in self:
             if r.payment_amount_rub:
-                r.nds_sum_rub = r.payment_amount_rub * (r.nds_percent/100)
+                r.nds_sum_rub = r.payment_amount_rub * (r.passport_id.project_id.contractor_company_id.get_nds(r.passport_id.date_of_signing) /100)
 
     @api.model
     def api_create_line(self, data):

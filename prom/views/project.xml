@@ -10,6 +10,7 @@
 
             <xpath expr="//field[@id='company_currency']" position="after">
                 <field name="nds"/>
+                <field name="nds_new"/>
                 <field name="is_own"/>
                 <field name="is_rf"/>
                 <field name="nds_type"/>

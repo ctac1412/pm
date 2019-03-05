@@ -94,6 +94,13 @@ class report_writer(object):
             self.ws.merge_cells(start_row=row, start_column=column, end_row=row, end_column = column + megred_cell)
         if style_name:
             c.style= style_name 
+        
+        # _logger.info('--------------------- Cell type')
+        # _logger.info(type(value))
+        # _logger.info(type(value) == float)
+        if type(value) == float:
+            c.number_format = '#,##0.00'
+
         return c
 
     def label_style(self):
@@ -146,9 +153,12 @@ class report_writer(object):
 
         for obligation in arr:
             obligation_date =  fields.Datetime.from_string(obligation.obligation_date)
+            price = (obligation.price * obligation.count) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
+            price = self.env['prom.passport'].toRub(obligation.obligation_date,obligation.currency_id,price)
+
             obligations.append({
                 'name':obligation.obligation_type_money_id.name if money else obligation.obligation_type_id.name,
-                'price': (obligation.price * obligation.count) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
+                'price': price
             })
 
         return obligations

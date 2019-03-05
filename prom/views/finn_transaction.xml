@@ -27,6 +27,7 @@
                             <field name="payment_amount" />
                             <field name="payment_amount_rub" />
                             <field name="nds_percent" />
+                            <field name="nds_percent_new" />
                             <field name="passport_id" readonly="1"/>
                             <field name="nds_sum" />
                             <field name="nds_sum_rub" />
@@ -66,6 +67,7 @@
                 <field name="payment_amount" />
                 <field name="payment_amount_rub" />
                 <field name="nds_percent" />
+                <field name="nds_percent_new" />
                 <field name="nds_sum" />
                 <field name="nds_sum_rub" />
             </tree>
