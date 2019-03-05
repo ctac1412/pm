@@ -157,8 +157,8 @@ class plan_prodash(report_writer):
         self.label_value(u'План закупок',r.customer_company_id.name)
         self.label_value(u'С НДС, рублей на дату подписания',passport.price_rub_date_sign )
         date_of_pr_start = '' if not passport.date_of_pr_start else fields.Datetime.from_string(passport.date_of_pr_start).strftime('%d.%m.%Y')
-        date_of_finstart = '' if not passport.date_of_finstart else fields.Datetime.from_string(passport.date_of_finstart).strftime('%d.%m.%Y')
-        self.label_value(u'Период', '{}-{}'.format(date_of_pr_start,date_of_finstart))
+        date_of_start = '' if not passport.date_of_start else fields.Datetime.from_string(passport.date_of_start).strftime('%d.%m.%Y')
+        self.label_value(u'Период', '{}-{}'.format(date_of_pr_start,date_of_start))
         self.label_value(u'Ответственный менеджер',r.manager_user_id.name)
 
         row = self.master_row

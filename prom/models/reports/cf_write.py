@@ -75,7 +75,7 @@ class cf_write(report_writer):
         return sum(a[root][sub_type] for a in q['months'])
 
     def get_name_passport(self,r,is_podryad=False):
-        return (u"Заказчик: {}-{}/Исполнитель: {}-{}." if not is_podryad else u"Покупатель: {}-{}/Поставщик: {}-{}" ) .format(r.customer_company_id.name,r.customer_company_id.vat,r.contractor_company_id.name,r.contractor_company_id.vat)
+        return (u"Заказчик: {}/Исполнитель: {}." if not is_podryad else u"Покупатель: {}/Поставщик: {}" ) .format(r.customer_company_id.name,r.contractor_company_id.name)
     
     def month_block_element(self,r,passport,x,is_podryads = False):
         avance_date, fact_date, endpnr_date, message_date = self.get_pay_dates(passport,True)
@@ -243,10 +243,21 @@ class cf_write(report_writer):
         
 
         self.label_value('','')
-        self.compute_row(super_quarters,u'Сумма облигаций','summ_obligations',style_name = 'grennCell',is_name_style=True)
+        self.compute_row(super_quarters,u'Сумма прочих расходов (обязательства)','summ_obligations',style_name = 'grennCell',is_name_style=True) # Сумма облигций
         self.compute_row(super_quarters,'','obligations')
 
         if not sub:
+            self.label_value('Обеспечение по договору','Вставить сюда обеспечение')
+            if passport.type_of_pledge:
+                if passport.type_of_pledge == 'bg':
+                    self.label_value('bg','')
+                elif passport.type_of_pledge == 'money':
+                    self.label_value('money','')
+
+
+
+        if not sub:
+            self.compute_row(self.root_super_quarters,u'Сальдо денежных потоков по операционной деятельности','root_saldo',style_name = 'grennCell',is_name_style=True)
             self.label_value(u'Подрядчики проекта','')
             subpodryads = r.sub_project_ids.filtered(lambda o: len(o.sub_project_ids))
             
@@ -255,8 +266,8 @@ class cf_write(report_writer):
             for sybpodryad in subpodryads:
                 self.render_block(r=sybpodryad,sub=True)
 
+            self.label_value('','')
             self.compute_row(super_quarters,u'Сальдо основного проекта','saldo',style_name = 'grennCell',is_name_style=True)
-            self.compute_row(self.root_super_quarters,u'Сальдо денежных потоков по операционной деятельности','root_saldo',style_name = 'grennCell',is_name_style=True)
             
         if sub:
             self.compute_row(super_quarters,u'Сальдо денежных потоков по операционной деятельности подрядчиков/ субподрядчиков','saldo',style_name = 'grennCell',is_name_style=True)

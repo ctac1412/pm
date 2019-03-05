@@ -50,7 +50,7 @@ class rp_write(report_writer):
             self.label_value(u"Срок производства",passport.date_of_pr_production)
             self.label_value(u"Срок доставки",passport.date_of_delivery)
             self.label_value(u"Срок ПНР",passport.date_of_start)
-            self.label_value(u"Срок поставки",passport.date_of_finstart)
+            self.label_value(u"Срок поставки",passport.date_of_start)
             self.label_value(u"Гарантийный период",passport.date_of_warranty_end)
             self.array_row([
                 (u"Условия оплаты:",self.label_style(),),

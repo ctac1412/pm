@@ -641,7 +641,6 @@ class passport(models.Model):
             else:
                 r.date_of_warranty_end = False
 
-    date_of_finstart= fields.Date(compute='compute_date_of_finstart',store=True)
 
     delivery_time = fields.Integer(compute='_delivery_time',store=True)
 
@@ -650,14 +649,6 @@ class passport(models.Model):
     def _delivery_time(self):
         for r in self:
             r.delivery_time = r.production_days + r.delivery_days_to_rf + r.delivery_days + r.start_up_period
-
-    @api.onchange('date_of_start','delivery_time')
-    @api.depends('date_of_start','delivery_time')
-    def compute_date_of_finstart(self):
-        for r in self:
-            if r.date_of_start:
-                r.date_of_finstart = fields.Datetime.from_string(r.date_of_start) + timedelta(days=int(r.delivery_time))
-                
 
     date_of_pr_start = fields.Date()
 

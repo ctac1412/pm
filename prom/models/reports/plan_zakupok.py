@@ -84,37 +84,31 @@ class plan_zakupok(report_writer):
                     if len(pod_pas) > 1: pod_pas = pod_pas[0]
                     if not len(pod_pas): continue
 
+                    pod_pas_date_of_start = fields.Datetime.from_string(pod_pas.date_of_start)
                     pod_pas_avance_date = fields.Datetime.from_string(pod_pas.avance_date_of_payment)
                     pod_pas_fact_date = fields.Datetime.from_string(pod_pas.fact_date_of_payment)
                     pod_pas_endpnr_date = fields.Datetime.from_string(pod_pas.endpnr_date_of_payment)
                     pod_pas_message_date = fields.Datetime.from_string(pod_pas.message_date_of_payment)
 
-                    avance = (pod_pas.avance_summ_cur_rub_date_podpis or 0) if (
-                        pod_pas_avance_date and 
-                        pod_pas_avance_date.month == x.month and 
-                        pod_pas_avance_date.year == x.year
-                        ) else 0
-                    fact = (pod_pas.fact_summ_cur_rub_date_podpis or 0) if (
-                        pod_pas_fact_date and 
-                        pod_pas_fact_date.month == x.month and 
-                        pod_pas_fact_date.year == x.year
-                        # fact_date.month == .month and 
-                        # fact_date.year == .year 
-                        ) else 0
-                    endpnr = (pod_pas.endpnr_summ_cur_rub_date_podpis or 0) if (
-                        pod_pas_endpnr_date and 
-                        pod_pas_endpnr_date.month == x.month and 
-                        pod_pas_endpnr_date.year == x.year
-                        # endpnr_date.month == pod_pas_endpnr_date.month and 
-                        # endpnr_date.year == pod_pas_endpnr_date.year 
-                        ) else 0
-                    message = (pod_pas.message_summ_cur_rub_date_podpis or 0) if (
-                        pod_pas_message_date and
-                        pod_pas_message_date.month == x.month and 
-                        pod_pas_message_date.year == x.year 
+                    
+                    avance = (pod_pas.price_rub_actual or 0) if (
+                        pod_pas_date_of_start and
+                        pod_pas_date_of_start.month == x.month and 
+                        pod_pas_date_of_start.year == x.year 
                         # message_date.month == pod_pas_message_date.month and 
                         # message_date.year == pod_pas_message_date.year
                         ) else 0
+                    # avance = 
+                    fact = 0
+                    endpnr = 0
+                    # message = (pod_pas.message_summ_cur_rub_date_podpis or 0) if (
+                    #     pod_pas_message_date and
+                    #     pod_pas_message_date.month == x.month and 
+                    #     pod_pas_message_date.year == x.year 
+                    #     # message_date.month == pod_pas_message_date.month and 
+                    #     # message_date.year == pod_pas_message_date.year
+                    #     ) else 0
+                    message = 0
 
                     customer_company_id = pod.customer_company_id.name if pod.customer_company_id else ""
                     contractor_company_id = pod.contractor_company_id.name if pod.contractor_company_id else ""
@@ -178,8 +172,8 @@ class plan_zakupok(report_writer):
         self.label_value(u'План закупок',r.customer_company_id.name)
         self.label_value(u'С НДС, рублей на дату подписания',passport.price_rub_date_sign )
         date_of_pr_start = '' if not passport.date_of_pr_start else fields.Datetime.from_string(passport.date_of_pr_start).strftime('%d.%m.%Y')
-        date_of_finstart = '' if not passport.date_of_finstart else fields.Datetime.from_string(passport.date_of_finstart).strftime('%d.%m.%Y')
-        self.label_value(u'Период', '{}-{}'.format(date_of_pr_start,date_of_finstart))
+        date_of_start = '' if not passport.date_of_start else fields.Datetime.from_string(passport.date_of_start).strftime('%d.%m.%Y')
+        self.label_value(u'Период', '{}-{}'.format(date_of_pr_start,date_of_start))
         self.label_value(u'Ответственный менеджер',r.manager_user_id.name)
 
         row = self.master_row

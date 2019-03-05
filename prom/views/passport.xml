@@ -187,8 +187,8 @@
                             <field name="delivery_days_to_rf"/>
                             <field name="delivery_days"/>
                             <field name="start_up_period"/>
-                            <field name="warranty_period"/>
                             <field name="delivery_time"/>
+                            <field name="warranty_period"/>
 
 
 
@@ -196,11 +196,11 @@
                         <group>
                             <field name="date_of_accept"/>
                             <field name="date_of_pr_production"/>
-                            <field name="date_of_delivery"/>
                             <field name="date_of_delivery_to_rf"/>
+                            <field name="date_of_delivery"/>
                             <field name="date_of_start"/>
                             <field name="date_of_warranty_end"/>
-                            <field name="date_of_finstart"/>
+                            <!-- <field name="date_of_finstart"/> -->
                         </group>
                     </group>
                 </sheet>

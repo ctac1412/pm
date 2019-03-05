@@ -89,7 +89,7 @@ class pl_write(report_writer):
                             'r':sub_project,
                             'passport':sub_passport,
                             'sale_of_goods':(sub_passport.price_rub_date_sign_wonds or 0) if (date_of_signing and date_of_signing.month == x.month and date_of_signing.year == x.year) else 0,
-                            'name':u"Заказчик: {}-{}/Исполнитель: {}-{}. Номенклатура: {}".format(sub_project.customer_company_id.name,sub_project.customer_company_id.vat,sub_project.contractor_company_id.name,sub_project.contractor_company_id.vat, ', '.join([product.product_item_id.name for product in sub_passport.product_ids]))
+                            'name':u"Заказчик: {}/Исполнитель: {}. Номенклатура: {}".format(sub_project.customer_company_id.name,sub_project.contractor_company_id.name, ', '.join([product.product_item_id.name for product in sub_passport.product_ids]))
                         })
 
                 v = {
@@ -150,7 +150,7 @@ class pl_write(report_writer):
         self.compute_row(payment_quarters,u'Выручка от продажи товаров, работ, услуг','sale_of_goods',style_name = 'grennCell',is_name_style=True)
                 
 
-        value = u"Покупатель: {}-{}/Поставщик: {}-{}. Номенклатура: {}".format(r.customer_company_id.name,r.customer_company_id.vat,r.contractor_company_id.name,r.contractor_company_id.vat, ', '.join([product.product_item_id.name for product in passport.product_ids]))
+        value = u"Покупатель: {}/Поставщик: {}. Номенклатура: {}".format(r.customer_company_id.name,r.contractor_company_id.name, ', '.join([product.product_item_id.name for product in passport.product_ids]))
         self.compute_row(payment_quarters,value,'sale_of_goods')
         
         self.compute_row(payment_quarters,'Покупная/производственная  стоимость  товаров, работ, услуг','summ_sub_sales_of_goods',style_name = 'grennCell',is_name_style=True)
