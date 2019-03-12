@@ -246,13 +246,13 @@ class cf_write(report_writer):
         self.compute_row(super_quarters,u'Сумма прочих расходов (обязательства)','summ_obligations',style_name = 'grennCell',is_name_style=True) # Сумма облигций
         self.compute_row(super_quarters,'','obligations')
 
-        if not sub:
-            self.label_value('Обеспечение по договору','Вставить сюда обеспечение')
-            if passport.type_of_pledge:
-                if passport.type_of_pledge == 'bg':
-                    self.label_value('bg','')
-                elif passport.type_of_pledge == 'money':
-                    self.label_value('money','')
+        # if not sub:
+            # self.label_value('Обеспечение по договору','Вставить сюда обеспечение')
+            # if passport.type_of_pledge:
+            #     if passport.type_of_pledge == 'bg':
+            #         self.label_value('bg','')
+            #     elif passport.type_of_pledge == 'money':
+            #         self.label_value('money','')
 
 
 
@@ -395,7 +395,6 @@ class cf_write(report_writer):
         if not r: return 
         self.sub_super_quarters = []
         self.root_super_quarters = {}
-
         self.root_r = r
         self.render_label(r)
         self.render_block(r)
