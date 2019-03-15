@@ -74,7 +74,7 @@ class pl_write(report_writer):
 
         payment_quarters = self.get_payment_quarters()
 
-        date_of_signing = fields.Datetime.from_string(passport.date_of_signing)
+        date_to_write = fields.Datetime.from_string(passport.date_of_start)
 
         for q in payment_quarters:
             q['months'] = []
@@ -88,13 +88,13 @@ class pl_write(report_writer):
                         sub_sales_of_goods.append({
                             'r':sub_project,
                             'passport':sub_passport,
-                            'sale_of_goods':(sub_passport.price_rub_date_sign_wonds or 0) if (date_of_signing and date_of_signing.month == x.month and date_of_signing.year == x.year) else 0,
+                            'sale_of_goods':(sub_passport.price_rub_actual_wonds or 0) if (date_to_write and date_to_write.month == x.month and date_to_write.year == x.year) else 0,
                             'name':u"Заказчик: {}/Исполнитель: {}. Номенклатура: {}".format(sub_project.customer_company_id.name,sub_project.contractor_company_id.name, ', '.join([product.product_item_id.name for product in sub_passport.product_ids]))
                         })
 
                 v = {
                     "record":x,
-                    "sale_of_goods":(passport.price_rub_date_sign_wonds or 0) if (date_of_signing and date_of_signing.month == x.month and date_of_signing.year == x.year) else 0,
+                    "sale_of_goods":(passport.price_rub_actual_wonds or 0) if (date_to_write and date_to_write.month == x.month and date_to_write.year == x.year) else 0,
                     "sub_sales_of_goods":sub_sales_of_goods,
                     "summ_sub_sales_of_goods":sum( sub['sale_of_goods'] for sub in sub_sales_of_goods),
                     "obligations":obligations,

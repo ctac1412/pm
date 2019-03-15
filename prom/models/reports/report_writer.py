@@ -139,7 +139,7 @@ class report_writer(object):
         self.master_row = f_row+ 1
         self.max_cell = max(arr_len_excel ,self.max_cell,)
 
-    def get_obligations(self,passport,x,money):
+    def get_obligations(self, passport, x, money, with_pledge=False):
         obligations = []
         arr=[]
         if money:
@@ -148,7 +148,10 @@ class report_writer(object):
             arr = passport.obligation_ids.filtered(lambda p: len(p.obligation_type_id))
 
         for obligation in arr:
-            obligation_date =  fields.Datetime.from_string(obligation.obligation_date)
+            if with_pledge:
+                obligation_date =  fields.Datetime.from_string(obligation.obligation_date)
+            else:
+                obligation_date =  fields.Datetime.from_string(passport.date_of_start)
             price = (obligation.price * obligation.count) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
             price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
 
@@ -156,33 +159,33 @@ class report_writer(object):
                 'name':obligation.obligation_type_money_id.name if money else obligation.obligation_type_id.name,
                 'price': price
             })
+        if with_pledge:
+            if passport.is_include_report:
+                if passport.type_of_pledge == 'bg':
+                    obligation_date =  fields.Datetime.from_string(passport.avance_date_of_payment)
+                    price = (passport.commission_bg_rub + passport.commission_bg_rub_dogovor + passport.commission_bg_rub_garanty) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
+                    price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
+                    obligations.append({
+                        'name':"Обеспечение по договору(БГ -)",
+                        'price': -price
+                    })
+                elif passport.type_of_pledge == 'money':
 
-        if passport.is_include_report:
-            if passport.type_of_pledge == 'bg':
-                obligation_date =  fields.Datetime.from_string(passport.avance_date_of_payment)
-                price = (passport.commission_bg_rub + passport.commission_bg_rub_dogovor + passport.commission_bg_rub_garanty) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
-                price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
-                obligations.append({
-                    'name':"Обеспечение по договору(БГ -)",
-                    'price': -price
-                })
-            elif passport.type_of_pledge == 'money':
+                    obligation_date =  fields.Datetime.from_string(passport.avance_date_of_payment)
+                    price = (passport.contract_guarantee_sum_rf) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
+                    price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
+                    obligations.append({
+                        'name':"Обеспечение по договору(Деньги -)",
+                        'price': - price
+                    })
 
-                obligation_date =  fields.Datetime.from_string(passport.avance_date_of_payment)
-                price = (passport.contract_guarantee_sum_rf) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
-                price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
-                obligations.append({
-                    'name':"Обеспечение по договору(Деньги -)",
-                    'price': - price
-                })
-
-                obligation_date =  fields.Datetime.from_string(passport.date_of_start)
-                price = (passport.contract_guarantee_sum_rf) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
-                price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
-                obligations.append({
-                    'name':"Обеспечение по договору(Деньги +)",
-                    'price': price
-                })
+                    obligation_date =  fields.Datetime.from_string(passport.date_of_start)
+                    price = (passport.contract_guarantee_sum_rf) if (obligation_date and obligation_date.month == x.month and obligation_date.year == x.year) else 0
+                    price = passport.toRub(obligation.obligation_date,obligation.currency_id,price)
+                    obligations.append({
+                        'name':"Обеспечение по договору(Деньги +)",
+                        'price': price
+                    })
 
 
         return obligations

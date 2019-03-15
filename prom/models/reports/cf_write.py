@@ -79,7 +79,7 @@ class cf_write(report_writer):
     
     def month_block_element(self,r,passport,x,is_podryads = False):
         avance_date, fact_date, endpnr_date, message_date = self.get_pay_dates(passport,True)
-        obligations = self.get_obligations(passport,x,True)
+        obligations = self.get_obligations(passport, x, True, with_pledge=True)
         if not is_podryads:
             podryads = []
             for sub_project in r.sub_project_ids:

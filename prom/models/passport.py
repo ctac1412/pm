@@ -1092,7 +1092,7 @@ class passport(models.Model):
         for r in self:
             r.contract_guarantee_size_rub = r.contract_guarantee_sum_rf * (r.contract_guarantee_sum / 100 ) * (r.contract_guarantee_size_ds / 100)
 
-    period_ds_delivery = fields.Float('Период отвлечения ДС до окончания гарантийного периода, дни', store= True, compute='_period_ds_delivery')
+    period_ds_delivery = fields.Float('Период отвлечения ДС до срока поставки, дни' , store= True, compute='_period_ds_delivery')
 
     @api.depends('delivery_time','post_period_bg')
     @api.onchange('delivery_time','post_period_bg')
@@ -1100,13 +1100,13 @@ class passport(models.Model):
         for r in self:
             r.period_ds_delivery = r.delivery_time + r.post_period_bg
 
-    period_ds_warranty = fields.Float('Период отвлечения ДС до срока поставки, дни', store= True, compute='_period_ds_delivery')
+    period_ds_warranty = fields.Float('Период отвлечения ДС до окончания гарантийного периода, дни', store= True, compute='_period_ds_warranty')
 
     @api.depends('delivery_time','post_period_bg','warranty_period_bg')
     @api.onchange('delivery_time','post_period_bg','warranty_period_bg')
-    def _period_ds_delivery(self):
+    def _period_ds_warranty(self):
         for r in self:
-            r.period_ds_delivery = r.delivery_time + r.post_period_bg + r.warranty_period_bg
+            r.period_ds_warranty = r.delivery_time + r.post_period_bg + r.warranty_period_bg
             
             # Обеспечительный платеж
 
