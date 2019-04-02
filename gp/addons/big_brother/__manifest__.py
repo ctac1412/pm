@@ -19,6 +19,7 @@
         'views/vk/vk_person.xml',
         'views/vk/vk_schools.xml',
         'views/vk/vk_universities.xml',
+        'views/vk/vk_search.xml',
         # vk
         'views/menu.xml',
     ],

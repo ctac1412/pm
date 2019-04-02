@@ -14,15 +14,38 @@ class obligation(models.Model):
     name = fields.Char()
     currency_id = fields.Many2one(comodel_name="res.currency")
     price = fields.Float()
+    price_in_rf = fields.Float(string='Цена в рублях без НДС', cpmpute='compute_price_in_rf', store=True)
+
+    @api.onchange('price','obligation_date','currency_id')
+    @api.depends('price','obligation_date','currency_id')
+    def compute_price_in_rf(self):
+        for r in self:
+            if r.obligation_date and r.currency_id and r.price:
+                r.price_in_rf = self.env['prom.passport'].toRub(r.obligation_date,r.currency_id,r.price)
+
     persent = fields.Integer()
     unit = fields.Char()
     count = fields.Integer()
     
     obligation_date  = fields.Datetime(required=True)
 
+    is_pl_report = fields.Boolean(string="Выводить в PL")
+
+
+     
+    obligation_type_select = fields.Selection(
+        string="Тип обязательства",
+        selection=[
+                ('income', 'Доход'),
+                ('expenses', 'Расход'),
+        ],
+    )
+
     obligation_type_id = fields.Many2one(
         comodel_name="prom.obligation_type"
     )
+
+    
     obligation_type_money_id= fields.Many2one(
         comodel_name="prom.obligation_type_money"
     )
@@ -59,6 +82,13 @@ class obligation_type(models.Model):
     _name = 'prom.obligation_type'
     name = fields.Char()
     description = fields.Text()
+    obligation_type_select = fields.Selection(
+        string="Тип обязательства",
+        selection=[
+                ('income', 'Доход'),
+                ('expenses', 'Расход'),
+        ],
+    )
 
 class obligation_type_money(models.Model):
     _name = 'prom.obligation_type_money'

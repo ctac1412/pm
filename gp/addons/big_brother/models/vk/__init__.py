@@ -5,3 +5,4 @@ from . import vk_universities
 from . import vk_military
 from . import vk_relativ
 from . import vk_person
+from . import vk_search

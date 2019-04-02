@@ -9,10 +9,11 @@
                     <h1>Обязательства</h1>
                     <group>
                         <field name="compute_mode"/>
-                        <field name="name"/>
 
-                        <field name="obligation_type_id"/>
+                        <field name="obligation_type_select"/>
+        <field name="obligation_type_id" domain='[("obligation_type_select","=",obligation_type_select)]' attrs="{'invisible': [('obligation_type_select','=',False)]}"/>
                         <field name="obligation_type_money_id"/>
+                        <field name="name"/>
                         <field name="obligation_date"/>
                     </group>
                     <group >
@@ -21,6 +22,7 @@
                             <field name="count" />
                             <field name="persent" attrs="{'invisible': [('compute_mode','!=','persent')]}"/>
                             <field name="price" attrs="{'invisible': [('compute_mode','!=','price')]}"/>
+                            <field name="price_in_rf" attrs="{'invisible': [('compute_mode','!=','price')]}"/>
                         </group>
                         <group>
                             <field name="unit"/>

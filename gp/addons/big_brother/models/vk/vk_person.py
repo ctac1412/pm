@@ -91,7 +91,7 @@ class vk_person(models.Model):
         return record
 
 
-    def update_data(self, vk_id=False, api=False, with_friend=True, with_relative=True):
+    def update_data(self, vk_id=False, vk_api=False, with_friend=True, with_relative=True):
         record = self
         if not vk_id:
             vk_id = record.vk_id
@@ -100,19 +100,19 @@ class vk_person(models.Model):
 
         login='+79778204727'
         password='Aa13243546'
-        if not api:
-            api = vk_requests.create_api(app_id=6872198, login=login, password=password)
+        if not vk_api:
+            vk_api = vk_requests.create_api(app_id=6872198, login=login, password=password)
             
-        res = api.users.get(user_ids=vk_id, fields=vk_fields)
+        res = vk_api.users.get(user_ids=vk_id, fields=vk_fields)
 
         record.update_record(res[0], record)
         print("Закончили обновлять основную карточку.")
     
         if with_friend:
-            friends = api.friends.get(user_id=vk_id, count=1)
+            friends = vk_api.friends.get(user_id=vk_id, count=1)
 
             friends_ids = friends['items']
-            friends = api.users.get(user_ids=friends_ids, fields=vk_fields)
+            friends = vk_api.users.get(user_ids=friends_ids, fields=vk_fields)
 
             links = []
             for x in range(len(friends)):

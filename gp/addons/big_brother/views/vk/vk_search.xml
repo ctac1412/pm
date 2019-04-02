@@ -1,0 +1,72 @@
+<odoo>
+    <data>
+
+        <record id="view_vk_search_form" model="ir.ui.view">
+            <field name="name">big_brother.vk_search.form</field>
+            <field name="model">big_brother.vk_search</field>
+            <field name="arch" type="xml">
+                <form string="Поиск ВК">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="hometown"/>
+                            <field name="university_year"/>
+                            <field name="sex"/>
+                            <field name="status"/>
+                            <field name="age_from"/>
+                            <field name="age_to"/>
+                            <field name="birth_day"/>
+                            <field name="birth_month"/>
+                            <field name="birth_year"/>
+                            <field name="online"/>
+                            <field name="has_photo"/>
+                            <field name="school_class"/>
+                            <field name="school_year"/>
+                            <field name="religion"/>
+                            <field name="interests"/>
+                            <field name="company"/>
+                            <field name="position"/>
+                            <field name="test_result"/>
+                            <button  string="get_vk_search" type='object' name="get_vk_search"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_vk_search_tree" model="ir.ui.view">
+            <field name="name">big_brother.vk_search.tree</field>
+            <field name="model">big_brother.vk_search</field>
+            <field name="arch" type="xml">
+                <tree string="Поиск ВК">
+                            <field name="name"/>
+                            <field name="hometown"/>
+                            <field name="university_year"/>
+                            <field name="sex"/>
+                            <field name="status"/>
+                            <field name="age_from"/>
+                            <field name="age_to"/>
+                            <field name="birth_day"/>
+                            <field name="birth_month"/>
+                            <field name="birth_year"/>
+                            <field name="online"/>
+                            <field name="has_photo"/>
+                            <field name="school_class"/>
+                            <field name="school_year"/>
+                            <field name="religion"/>
+                            <field name="interests"/>
+                            <field name="company"/>
+                            <field name="position"/>
+                            
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_open_vk_search_view">
+            <field name="name">Поиск ВК</field>
+            <field name="res_model">big_brother.vk_search</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+</odoo>

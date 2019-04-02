@@ -128,7 +128,8 @@ class plan_zakupok(report_writer):
                         'contragents':contragents,
                         'dogovor':dogovor,
                         'nomenclatura':nomenclatura,
-                        'month_plan':sum([avance,fact,endpnr,message]) 
+                        'month_plan':sum([avance,fact,endpnr,message]),
+                        'pod_pas_date_of_start': pod_pas_date_of_start,
                     })
 
                 q['months'].append({
@@ -195,6 +196,7 @@ class plan_zakupok(report_writer):
 
         f_cell = self.master_cell
         self.cell_in_row(u'Итого:',value_style=self.label_style())
+        self.cell_in_row(u'Итого в валюте договора:',value_style=self.label_style(), f_cell = f_cell+1)
         self.cell_in_row(u'План',f_cell = f_cell, f_row = row+1)
 
         self.master_row += 2
@@ -233,7 +235,9 @@ class plan_zakupok(report_writer):
         for pod in payment_quarters[0]["months"][0]['podryads']:
             value = sum(sum(m['podryads'][pod_count]['month_plan'] for m in x['months']) for x in payment_quarters)
             self.cell_in_row(value,f_cell=cell, f_row = row+pod_count)
+            self.cell_in_row(passport.env['prom.passport'].fromRub(fields.Datetime.now(),passport.currency_id,value),f_cell=cell+1, f_row = row+pod_count)
             pod_count+=1
+
 
         # Названия подрядчиков
         # Названия подрядчиков
@@ -261,6 +265,7 @@ class plan_zakupok(report_writer):
             root_sum += value
             self.cell_in_row(value)
         self.cell_in_row(root_sum)
+        self.cell_in_row(passport.env['prom.passport'].fromRub(fields.Datetime.now(),passport.currency_id,root_sum))
               
             
   

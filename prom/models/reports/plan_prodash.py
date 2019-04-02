@@ -44,21 +44,6 @@ class plan_prodash(report_writer):
                 }
         return vals
 
-    def find_price(self,record,x,type):
-        filter_result = record.passport_ids.filtered(lambda r: r.is_actual == True)
-        passport = filter_result[0] if filter_result else False
-
-        if not passport: return 0
-
-        avance_date = fields.Datetime.from_string(passport.avance_date_of_payment)
-        fact_date = fields.Datetime.from_string(passport.fact_date_of_payment)
-        endpnr_date = fields.Datetime.from_string(passport.avance_date_of_payment)
-        message_date = fields.Datetime.from_string(passport.message_date_of_payment)
-
-        if type=='avance': return (passport.avance_summ_cur_rub_date_podpis or 0) if (avance_date and avance_date.month == x.month and avance_date.year == x.year) else 0
-        if type=='fact': return (passport.fact_summ_cur_rub_date_podpis or 0) if (fact_date and fact_date.month == x.month and fact_date.year == x.year) else 0
-        if type=='endpnr': return (passport.endpnr_summ_cur_rub_date_podpis or 0) if (endpnr_date and endpnr_date.month == x.month and endpnr_date.year == x.year) else 0
-        if type=='message': return (passport.message_summ_cur_rub_date_podpis or 0) if (message_date and message_date.month == x.month and message_date.year == x.year) else 0
 
     def generate_payment_quarters(self,r,passport):
 
@@ -71,10 +56,7 @@ class plan_prodash(report_writer):
                         'quarter':x[1]
                         } for x in payment_quarters]
 
-        avance_date = fields.Datetime.from_string(passport.avance_date_of_payment)
-        fact_date = fields.Datetime.from_string(passport.fact_date_of_payment)
-        endpnr_date = fields.Datetime.from_string(passport.endpnr_date_of_payment)
-        message_date = fields.Datetime.from_string(passport.message_date_of_payment)
+                    
         
         root_obligations=[]
         
@@ -89,10 +71,31 @@ class plan_prodash(report_writer):
                 pod_pas = pod.passport_ids.filtered(lambda r: r.is_actual == True)
                 if len(pod_pas) > 1: pod_pas = pod_pas[0]
                 if not len(pod_pas): continue
-                avance = (pod_pas.avance_summ_cur_rub_date_podpis or 0) if (avance_date and avance_date.month == x.month and avance_date.year == x.year) else 0
-                fact = (pod_pas.fact_summ_cur_rub_date_podpis or 0) if (fact_date and fact_date.month == x.month and fact_date.year == x.year) else 0
-                endpnr = (pod_pas.endpnr_summ_cur_rub_date_podpis or 0) if (endpnr_date and endpnr_date.month == x.month and endpnr_date.year == x.year) else 0
-                message = (pod_pas.message_summ_cur_rub_date_podpis or 0) if (message_date and message_date.month == x.month and message_date.year == x.year) else 0
+
+                pod_pas_date_of_start = fields.Datetime.from_string(passport.date_of_start)
+                avance = (pod_pas.price_rub_actual or 0) if (
+                    pod_pas_date_of_start and
+                    pod_pas_date_of_start.month == x.month and 
+                    pod_pas_date_of_start.year == x.year 
+                    # message_date.month == pod_pas_message_date.month and 
+                    # message_date.year == pod_pas_message_date.year
+                    ) else 0
+                # avance = 
+                fact = 0
+                endpnr = 0
+                # message = (pod_pas.message_summ_cur_rub_date_podpis or 0) if (
+                #     pod_pas_message_date and
+                #     pod_pas_message_date.month == x.month and 
+                #     pod_pas_message_date.year == x.year 
+                #     # message_date.month == pod_pas_message_date.month and 
+                #     # message_date.year == pod_pas_message_date.year
+                #     ) else 0
+                message = 0
+
+                # avance = (pod_pas.avance_summ_cur_rub_date_podpis or 0) if (avance_date and avance_date.month == x.month and avance_date.year == x.year) else 0
+                # fact = (pod_pas.fact_summ_cur_rub_date_podpis or 0) if (fact_date and fact_date.month == x.month and fact_date.year == x.year) else 0
+                # endpnr = (pod_pas.endpnr_summ_cur_rub_date_podpis or 0) if (endpnr_date and endpnr_date.month == x.month and endpnr_date.year == x.year) else 0
+                # message = (pod_pas.message_summ_cur_rub_date_podpis or 0) if (message_date and message_date.month == x.month and message_date.year == x.year) else 0
 
                 
                 customer_company_id = pod.customer_company_id.name if pod.customer_company_id else ""
@@ -180,6 +183,7 @@ class plan_prodash(report_writer):
 
         f_cell = self.master_cell
         self.cell_in_row(u'Итого:',value_style=self.label_style())
+        self.cell_in_row(u'Итого в валюте договора:',value_style=self.label_style(),f_cell = f_cell+1)
         self.cell_in_row(u'План',f_cell = f_cell, f_row = row+1)
 
         self.master_row += 2
@@ -218,6 +222,7 @@ class plan_prodash(report_writer):
         for pod in payment_quarters[0]["months"][0]['podryads']:
             value = sum(sum(m['podryads'][pod_count]['month_plan'] for m in x['months']) for x in payment_quarters)
             self.cell_in_row(value,f_cell=cell, f_row = row+pod_count)
+            self.cell_in_row(passport.env['prom.passport'].fromRub(fields.Datetime.now(),passport.currency_id,value),f_cell=cell+1, f_row = row+pod_count)
             pod_count+=1
 
         # Названия подрядчиков
@@ -246,6 +251,7 @@ class plan_prodash(report_writer):
             root_sum += value
             self.cell_in_row(value)
         self.cell_in_row(root_sum)
+        self.cell_in_row(passport.env['prom.passport'].fromRub(fields.Datetime.now(),passport.currency_id,root_sum))
               
             
   
