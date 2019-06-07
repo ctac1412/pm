@@ -9,9 +9,8 @@
                     <h1>Обязательства</h1>
                     <group>
                         <field name="compute_mode"/>
-
                         <field name="obligation_type_select"/>
-        <field name="obligation_type_id" domain='[("obligation_type_select","=",obligation_type_select)]' attrs="{'invisible': [('obligation_type_select','=',False)]}"/>
+                        <field name="obligation_type_id" domain='[("obligation_type_select","=",obligation_type_select)]' attrs="{'invisible': [('obligation_type_select','=',False)]}" context='{"default_obligation_type_select":obligation_type_select}' />
                         <field name="obligation_type_money_id"/>
                         <field name="name"/>
                         <field name="obligation_date"/>

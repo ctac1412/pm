@@ -14,7 +14,7 @@ class obligation(models.Model):
     name = fields.Char()
     currency_id = fields.Many2one(comodel_name="res.currency")
     price = fields.Float()
-    price_in_rf = fields.Float(string='Цена в рублях без НДС', cpmpute='compute_price_in_rf', store=True)
+    price_in_rf = fields.Float(string='Цена в рублях без НДС', compute='compute_price_in_rf', store=True)
 
     @api.onchange('price','obligation_date','currency_id')
     @api.depends('price','obligation_date','currency_id')
@@ -27,7 +27,7 @@ class obligation(models.Model):
     unit = fields.Char()
     count = fields.Integer()
     
-    obligation_date  = fields.Datetime(required=True)
+    obligation_date  = fields.Date(required=True)
 
     is_pl_report = fields.Boolean(string="Выводить в PL")
 

@@ -8,6 +8,7 @@
                 <sheet>
                  
                     <group>
+                        <field name="obligation_type_select"/>
                         <field name="name"/>
                         <field name="description"/>
                     </group>
@@ -21,6 +22,7 @@
         <field name="model">prom.obligation_type</field>
         <field name="arch" type="xml">
             <tree string="obligation_type">
+                <field name="obligation_type_select"/>
                 <field name="name"/>
                 <field name="description"/>
             </tree>

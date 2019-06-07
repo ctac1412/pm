@@ -386,14 +386,16 @@ class passport(models.Model):
         if not cur_id or not date : return False
         if int(cur_id) == -1 or cur_id.name == 'RUB':
             return 1
-        res = self.env['res.currency.rate'].search([('currency_id', '=', cur_id.id),('name', '<=', date)], limit=1, order='name DESC')
+
+        
+
+        res = self.env['res.currency.rate'].search([('currency_id', '=', cur_id.id),('name', '=', date)], limit=1, order='name DESC')
         
         if not res:
             self.env['prom.currency_rate'].refresh_currency_for_date(fields.Datetime.from_string(date))
             res = self.env['res.currency.rate'].search([('currency_id', '=', cur_id.id),('name', '<=', date)], limit=1, order='name DESC')
 
         if not res:
-            print '---',cur_id,date
             raise UserError(_('Cant find current rate:') + str(cur_id.name) + ' to date - ' + str(date))
         return res.rate
     
@@ -406,7 +408,6 @@ class passport(models.Model):
 
     @api.model
     def toRub(self,date,cur_id,price):
-        print '-------------- toRub',date,cur_id,price
         res = 0
         if cur_id.name == 'RUB':
             res= price
